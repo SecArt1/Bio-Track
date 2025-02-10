@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:gp/register.dart';
-import 'package:gp/stillStart.dart';
-import 'package:gp/logInPage.dart';
-
+import 'package:bio_track/register.dart';
+import 'package:bio_track/stillStart.dart';
+import 'package:bio_track/logInPage.dart';
 
 class ForgotPassword extends StatelessWidget {
-  const ForgotPassword({super.key,});
+  const ForgotPassword({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-
       body: Column(
         children: [
           Expanded(

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:gp/startScreen.dart';
-import 'package:gp/stillStart.dart';
-import 'package:gp/LandingPage.dart';
+import 'package:bio_track/startScreen.dart';
+import 'package:bio_track/stillStart.dart';
+import 'package:bio_track/LandingPage.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void main() {

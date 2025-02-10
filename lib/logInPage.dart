@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:gp/register.dart';
-import 'package:gp/stillStart.dart';
-import 'package:gp/forgotPassword.dart';
-import 'package:gp/LandingPage.dart';
+import 'package:bio_track/register.dart';
+import 'package:bio_track/stillStart.dart';
+import 'package:bio_track/forgotPassword.dart';
+import 'package:bio_track/LandingPage.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({

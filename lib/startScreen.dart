@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gp/logInPage.dart';
-import 'package:gp/register.dart';
-import 'package:gp/stillStart.dart';
+import 'package:bio_track/logInPage.dart';
+import 'package:bio_track/register.dart';
+import 'package:bio_track/stillStart.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'dart:math' as math;
 import 'dart:async';

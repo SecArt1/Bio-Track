@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gp/StartTest.dart';
-import 'package:gp/edit_profile.dart';
+import 'package:bio_track/StartTest.dart';
+import 'package:bio_track/edit_profile.dart';
 
 class LandingPage extends StatelessWidget {
   const LandingPage({super.key});
@@ -168,7 +168,7 @@ class LandingPage extends StatelessWidget {
                             Navigator.push( context, MaterialPageRoute(builder: (context) => EditProfilePage()), );
                           },
                           child: Image.asset(
-                            'assets/profile2.png',
+                            'assets/profile.png',
                             height: 80,
                             width: 80,
                           ),

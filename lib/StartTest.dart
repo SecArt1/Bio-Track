@@ -1,7 +1,8 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:gp/edit_profile.dart';
+import 'package:bio_track/edit_profile.dart';
 
 class SummaryPage extends StatefulWidget {
   const SummaryPage({Key? key}) : super(key: key);
@@ -99,7 +100,7 @@ class _SummaryPageState extends State<SummaryPage> {
                                     style: TextStyle(
                                         color:
                                             Color.fromARGB(255, 255, 255, 255),
-                                        fontSize: 18,
+                                        fontSize: 17,
                                         fontWeight: FontWeight.bold),
                                   ),
                                 ),
@@ -113,7 +114,7 @@ class _SummaryPageState extends State<SummaryPage> {
                                     style: TextStyle(
                                         color:
                                             Color.fromARGB(207, 207, 208, 212),
-                                        fontSize: 18,
+                                        fontSize: 17,
                                         fontWeight: FontWeight.bold),
                                   ),
                                 ),
@@ -127,7 +128,7 @@ class _SummaryPageState extends State<SummaryPage> {
                                     style: TextStyle(
                                         color:
                                             Color.fromARGB(207, 207, 208, 212),
-                                        fontSize: 18,
+                                        fontSize: 17,
                                         fontWeight: FontWeight.bold),
                                   ),
                                 ),
@@ -141,7 +142,7 @@ class _SummaryPageState extends State<SummaryPage> {
                                     style: TextStyle(
                                         color:
                                             Color.fromARGB(207, 207, 208, 212),
-                                        fontSize: 15,
+                                        fontSize: 17,
                                         fontWeight: FontWeight.bold),
                                   ),
                                 ),
@@ -616,6 +617,7 @@ class _SummaryPageState extends State<SummaryPage> {
                             ],
                           ),
                         ),
+                        
                       ],
                     ),
                   ),

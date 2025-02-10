@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:gp/stillStart.dart';
-import 'package:gp/logInPage.dart';
+import 'package:bio_track/stillStart.dart';
+import 'package:bio_track/logInPage.dart';
 class RegisterPage extends StatelessWidget {
   RegisterPage({super.key});
 
