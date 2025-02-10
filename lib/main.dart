@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:gp/startScreen.dart';
 import 'package:gp/stillStart.dart';
 import 'package:gp/LandingPage.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(
@@ -17,6 +18,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+        textTheme: GoogleFonts.montserratTextTheme(
+          Theme.of(context).textTheme,
+        ),
+        primaryTextTheme: GoogleFonts.montserratTextTheme(
+          Theme.of(context).primaryTextTheme,
+        ),
+      ),
       home: StartScreen(),
     );
   }

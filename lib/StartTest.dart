@@ -141,7 +141,7 @@ class _SummaryPageState extends State<SummaryPage> {
                                     style: TextStyle(
                                         color:
                                             Color.fromARGB(207, 207, 208, 212),
-                                        fontSize: 18,
+                                        fontSize: 15,
                                         fontWeight: FontWeight.bold),
                                   ),
                                 ),
@@ -274,7 +274,7 @@ class _SummaryPageState extends State<SummaryPage> {
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Color.fromARGB(255, 185, 195, 203),
-                                      fontSize: 18,
+                                      fontSize: 15,
                                     ),
                                   ),
                                   const Text('30.1',
@@ -548,7 +548,7 @@ class _SummaryPageState extends State<SummaryPage> {
                                             fontWeight: FontWeight.bold,
                                             color: Color.fromARGB(
                                                 255, 185, 195, 203),
-                                            fontSize: 18,
+                                            fontSize: 15,
                                           ),
                                         ),
                                         const Text('36.8 C',  

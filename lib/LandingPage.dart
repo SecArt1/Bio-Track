@@ -250,8 +250,8 @@ class LandingPage extends StatelessWidget {
                         Text('Achievement',
                             style: TextStyle(
                               color: Color(0xff0383c2),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
                             )),
                         SizedBox(
                           width: 31,
