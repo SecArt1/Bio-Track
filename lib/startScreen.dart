@@ -108,20 +108,20 @@ class _StartScreenState extends State<StartScreen> {
                 color: const Color(0xff0383c2),
                 child: ListView(
                   controller: scrollController,
-                  children: const [
+                  children: [
                     Center(
                       child: Padding(
-                        padding: EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(16.0),
                         child: Column(
                           children: [
-                            Icon(
-                              Icons.keyboard_arrow_up,
-                              color: Colors.grey,
-                              size: 30.0,
-                            ),
-                            SizedBox(height: 10),
-
-                            // Additional content can be added here
+                            // Only show SwipeUpIndicator after heartbeat animation completes
+                            if (_showLogoAndText) // This ties it to the same condition as logo/text
+                              AnimatedOpacity(
+                                opacity: 1.0,
+                                duration: const Duration(milliseconds: 500),
+                                child: SwipeUpIndicator(), 
+                              ),
+                            const SizedBox(height: 10),
                           ],
                         ),
                       ),
@@ -299,6 +299,71 @@ class _LogoAnimationState extends State<LogoAnimation>
           child: Image.asset('assets/Logo.png', width: 300),
         );
       },
+    );
+  }
+}
+
+class SwipeUpIndicator extends StatefulWidget {
+  const SwipeUpIndicator({Key? key}) : super(key: key);
+
+  @override
+  _SwipeUpIndicatorState createState() => _SwipeUpIndicatorState();
+}
+
+class _SwipeUpIndicatorState extends State<SwipeUpIndicator>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Offset> _offsetAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    )..repeat();
+
+    _offsetAnimation = Tween<Offset>(
+      begin: const Offset(0, 0),
+      end: const Offset(0, -0.5),
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SlideTransition(
+          position: _offsetAnimation,
+          child: Column(
+            children: [
+              const Text(
+                "Swipe Up",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 5),
+              const Icon(
+                Icons.keyboard_arrow_up,
+                color: Colors.white,
+                size: 36.0,
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
