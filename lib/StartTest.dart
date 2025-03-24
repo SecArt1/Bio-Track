@@ -594,7 +594,7 @@ class _SummaryPageState extends State<SummaryPage> {
                           child: SfCartesianChart(
                             primaryXAxis: NumericAxis(),
                             primaryYAxis: NumericAxis(),
-                            series: <ChartSeries>[
+                            series: <CartesianSeries>[
                               SplineSeries<ChartData, double>(
                                 dataSource: [
                                   ChartData(0, 70),

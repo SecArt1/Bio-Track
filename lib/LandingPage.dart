@@ -1,9 +1,60 @@
 import 'package:flutter/material.dart';
 import 'package:bio_track/StartTest.dart';
 import 'package:bio_track/edit_profile.dart';
+import 'package:bio_track/services/user_service.dart';
+import 'package:bio_track/models/user_model.dart';
 
-class LandingPage extends StatelessWidget {
+class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
+
+  @override
+  _LandingPageState createState() => _LandingPageState();
+}
+
+class _LandingPageState extends State<LandingPage> {
+  UserModel? _currentUser;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      final userService = UserService();
+      final user = await userService.getCurrentUser();
+
+      if (mounted) {
+        setState(() {
+          _currentUser = user;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print("Error loading user data: $e");
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  // Calculate age from date of birth
+  int calculateAge(DateTime birthDate) {
+    final today = DateTime.now();
+    int age = today.year - birthDate.year;
+
+    // Adjust age if birthday hasn't occurred yet this year
+    if (today.month < birthDate.month ||
+        (today.month == birthDate.month && today.day < birthDate.day)) {
+      age--;
+    }
+
+    return age;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,18 +70,18 @@ class LandingPage extends StatelessWidget {
               child: Container(
                 width: double.infinity,
                 color: const Color(0xFF0383C2),
-                child: const Column(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        SizedBox(
+                        const SizedBox(
                           height: 170,
                           width: 25,
                         ),
 
                         /////////////////Avatar////////////
-                        SizedBox(
+                        const SizedBox(
                           child: CircleAvatar(
                             radius: 30,
                             backgroundColor: Colors.white,
@@ -38,25 +89,48 @@ class LandingPage extends StatelessWidget {
                           ),
                         ),
 
-                        SizedBox(
+                        const SizedBox(
                           width: 15,
                         ),
 
                         /////////////////Data////////////
                         SizedBox(
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                "Dr. Amira",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                              Row(
+                                children: [
+                                  Text(
+                                    _isLoading
+                                        ? "Loading..."
+                                        : (_currentUser?.fullName ?? "User"),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  // Add a refresh button
+                                  if (_currentUser?.fullName == null)
+                                    IconButton(
+                                      icon: Icon(Icons.refresh,
+                                          color: Colors.white, size: 16),
+                                      onPressed: () {
+                                        setState(() {
+                                          _isLoading = true;
+                                        });
+                                        _loadUserData();
+                                      },
+                                    ),
+                                ],
                               ),
                               Text(
-                                "Age",
-                                style: TextStyle(
+                                _isLoading
+                                    ? "Age: -"
+                                    : _currentUser?.dateOfBirth != null
+                                        ? "Age: ${calculateAge(_currentUser!.dateOfBirth!)}"
+                                        : "Age: Not set",
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
@@ -66,12 +140,12 @@ class LandingPage extends StatelessWidget {
                           ),
                         ),
 
-                        SizedBox(
+                        const SizedBox(
                           width: 120,
                         ),
 
                         /////////////////Logo & Icons////////////
-                        SizedBox(
+                        const SizedBox(
                           child: Column(
                             children: [
                               Image(
@@ -133,15 +207,17 @@ class LandingPage extends StatelessWidget {
                     height: 50,
                   ),
                   ///////////////// Welcome Message ////////////////
-                  const Row(
+                  Row(
                     children: [
-                      SizedBox(
+                      const SizedBox(
                         width: 30,
                       ),
                       SizedBox(
                         child: Text(
-                          "Hello, Dr. Amira!",
-                          style: TextStyle(
+                          _isLoading
+                              ? "Hello!"
+                              : "Hello, ${_currentUser?.fullName ?? 'User'}!",
+                          style: const TextStyle(
                             color: Color(0xFF0383c2),
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -165,7 +241,11 @@ class LandingPage extends StatelessWidget {
                         InkWell(
                           onTap: () {
                             // Handle profile button tap
-                            Navigator.push( context, MaterialPageRoute(builder: (context) => EditProfilePage()), );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => EditProfilePage()),
+                            );
                           },
                           child: Image.asset(
                             'assets/profile.png',

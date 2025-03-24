@@ -5,6 +5,8 @@ import 'package:bio_track/stillStart.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'dart:math' as math;
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class StartScreen extends StatefulWidget {
   @override
@@ -21,6 +23,25 @@ class _StartScreenState extends State<StartScreen> {
     super.initState();
     _controller = DraggableScrollableController();
     _controller.addListener(_onSwipe);
+
+    // Use this safer approach to access the current user
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      // Access user properties directly without casting
+      final uid = currentUser.uid;
+      final email = currentUser.email;
+
+      // If you need to fetch additional user data from Firestore
+      FirebaseFirestore.instance.collection('users').doc(uid).get().then((doc) {
+        if (doc.exists) {
+          // Access user data this way instead of casting
+          final userData = doc.data();
+          // Use userData here...
+        }
+      }).catchError((e) {
+        print("Error fetching user data: $e");
+      });
+    }
   }
 
   @override
@@ -119,7 +140,7 @@ class _StartScreenState extends State<StartScreen> {
                               AnimatedOpacity(
                                 opacity: 1.0,
                                 duration: const Duration(milliseconds: 500),
-                                child: SwipeUpIndicator(), 
+                                child: SwipeUpIndicator(),
                               ),
                             const SizedBox(height: 10),
                           ],

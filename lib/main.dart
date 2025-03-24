@@ -1,11 +1,21 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:bio_track/startScreen.dart';
 import 'package:bio_track/stillStart.dart';
 import 'package:bio_track/LandingPage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:bio_track/logInPage.dart';
+import 'package:bio_track/register.dart';
 
-void main() {
+// Add this global variable
+bool ignoreAuthChanges = false;
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
   runApp(
     ChangeNotifierProvider(
       create: (context) => SwipeState(),
@@ -26,7 +36,30 @@ class MyApp extends StatelessWidget {
           Theme.of(context).primaryTextTheme,
         ),
       ),
-      home: StartScreen(),
+      // Set initial route to the login page
+      home: HomePage(),
     );
+  }
+}
+
+// If you have an AuthenticationWrapper class like this:
+class AuthenticationWrapper extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    // Disable auto-navigation based on auth state
+    return HomePage();
+
+    // Comment out any code like this:
+    /*
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return StartScreen();
+        }
+        return HomePage();
+      },
+    );
+    */
   }
 }
