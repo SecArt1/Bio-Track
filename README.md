@@ -1,29 +1,58 @@
-# BioTrack - Health Monitoring System
+# BioTrack - Advanced Health Monitoring & Analytics Platform
 
 ## Overview
-BioTrack is a comprehensive health monitoring application built with Flutter that helps users track their vital signs and health metrics in real-time. The application features a beautiful UI with animated components and provides an intuitive way to monitor personal health data.
+BioTrack is a sophisticated health monitoring and analytics platform that empowers users to track, visualize, and manage their vital health metrics in real-time. Built with Flutter, this application combines a sleek, intuitive interface with powerful backend capabilities to provide a comprehensive health management solution. BioTrack makes personal health data accessible and actionable through customized analytics, trend visualization, and personalized recommendations.
 
-## Features
-- 🫀 Real-time heartbeat monitoring
-- 📊 Health metrics dashboard
-- 📱 Responsive design
-- 🔒 Secure data storage
-- 📈 Progress tracking
-- 🎯 Health goals setting
+## Key Features
+- 🩺 **Comprehensive Health Metrics** - Track weight, heart rate, blood pressure, blood sugar, and more
+- 📊 **Interactive Dashboard** - Visualize health data through dynamic, customizable charts
+- 🔔 **Smart Alerts & Insights** - Receive notifications for abnormal readings and health trends
+- 👤 **Detailed User Profiles** - Store medical history, allergies, medications, and emergency contacts
+- 📈 **Progress Tracking** - Monitor health improvements over time with detailed trend analysis
+- 🔄 **Continuous Monitoring** - Regular tracking of vital signs and health metrics
+- 🎯 **Health Goals** - Set and track personalized health targets
+- 🔒 **Secure Data Storage** - End-to-end encryption for all sensitive medical information
+- 💬 **Health History** - Maintain records of past health conditions and treatments
 
-## Tech Stack (At the moment)
-- Flutter
-- Dart
-- Custom Animations
-- Local Storage
-- RESTful API Integration
+## Complete Tech Stack
+- **Frontend**
+  - Flutter SDK for cross-platform development
+  - Dart programming language
+  - Material Design components with custom theming
+  - Custom animations and transitions
+  - Responsive layouts for various device sizes
+  - FL Chart for data visualization
+
+- **Backend & Storage**
+  - Firebase Authentication for secure user management
+  - Cloud Firestore for real-time data storage
+  - Firebase Storage for image and document storage
+  - Offline data persistence
+
+- **State Management**
+  - Provider pattern for state management
+  - AsyncValue for handling asynchronous states
+
+- **Additional Libraries**
+  - Google Fonts for typography
+  - Intl package for localization and date formatting
+  - Image picker for profile photo uploads
+  - Form validation and handling
+
+## Architecture
+BioTrack follows a clean architecture approach with:
+- **UI Layer** - Presentation components and widgets
+- **Service Layer** - Data processing and business logic
+- **Repository Layer** - Data access and persistence
+- **Model Layer** - Domain entities and data structures
 
 ## Getting Started
 
 ### Prerequisites
-- Flutter SDK
-- Dart SDK
-- Android Studio / VS Code
+- Flutter SDK (v2.0.0 or higher)
+- Dart SDK (v2.12.0 or higher)
+- Android Studio / VS Code with Flutter plugins
+- Firebase account for backend services
 - Git
 
 ### Installation
@@ -36,6 +65,13 @@ cd gp
 
 # Install dependencies
 flutter pub get
+
+# Set up Firebase
+# 1. Create a Firebase project in the Firebase Console
+# 2. Add Android & iOS apps to your Firebase project
+# 3. Download and place configuration files:
+#    - google-services.json in android/app/
+#    - GoogleService-Info.plist in ios/Runner/
 
 # Run the app
 flutter run
