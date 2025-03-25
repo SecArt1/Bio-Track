@@ -54,7 +54,7 @@ class _StartScreenState extends State<StartScreen> {
   void _onSwipe() {
     final size = _controller.size;
     if (size > 0.1) {
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomePage()),
       );

@@ -15,19 +15,17 @@ bool ignoreAuthChanges = false;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => SwipeState(),
-      child: MyApp(),
-    ),
-  );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'BioTrack',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         textTheme: GoogleFonts.montserratTextTheme(
           Theme.of(context).textTheme,
@@ -35,9 +33,11 @@ class MyApp extends StatelessWidget {
         primaryTextTheme: GoogleFonts.montserratTextTheme(
           Theme.of(context).primaryTextTheme,
         ),
+        colorScheme: const ColorScheme.light(
+          primary: Color(0xFF0383C2),
+        ),
       ),
-      // Set initial route to the login page
-      home: HomePage(),
+      home: StartScreen(), // Set StartScreen as the initial screen
     );
   }
 }
