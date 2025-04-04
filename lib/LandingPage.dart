@@ -3,6 +3,12 @@ import 'package:bio_track/StartTest.dart';
 import 'package:bio_track/edit_profile.dart';
 import 'package:bio_track/services/user_service.dart';
 import 'package:bio_track/models/user_model.dart';
+// New imports
+import 'package:bio_track/pages/FAQ.dart';
+import 'package:bio_track/pages/about.dart';
+import 'package:bio_track/pages/guide.dart';
+import 'package:bio_track/pages/notifications.dart';
+import 'package:bio_track/pages/settings.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
@@ -56,6 +62,22 @@ class _LandingPageState extends State<LandingPage> {
     return age;
   }
 
+  // Helper method for icon buttons
+  Widget _buildIconWithLabel(BuildContext context, String assetPath, String label, VoidCallback onTap) {
+    return Flexible(
+      child: Column(
+        children: [
+          InkWell(
+            onTap: onTap,
+            child: Image.asset(assetPath, height: 75, width: 75),
+          ),
+          const SizedBox(height: 3),
+          Text(label, style: const TextStyle(color: Color(0xff0383c2), fontSize: 16, fontWeight: FontWeight.w500)),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,120 +87,94 @@ class _LandingPageState extends State<LandingPage> {
         children: [
           Expanded(
             flex: 0,
-            child: Padding(
-              padding: const EdgeInsets.all(0.0),
-              child: Container(
-                width: double.infinity,
-                color: const Color(0xFF0383C2),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
+            child: Container(
+              width: double.infinity,
+              color: const Color(0xFF0383C2),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
-                        const SizedBox(
-                          height: 170,
-                          width: 25,
+                        const CircleAvatar(
+                          radius: 30,
+                          backgroundColor: Colors.white,
+                          child: Icon(Icons.person, color: Color(0xFF0078D4)),
                         ),
-
-                        /////////////////Avatar////////////
-                        const SizedBox(
-                          child: CircleAvatar(
-                            radius: 30,
-                            backgroundColor: Colors.white,
-                            child: Icon(Icons.person, color: Color(0xFF0078D4)),
-                          ),
-                        ),
-
-                        const SizedBox(
-                          width: 15,
-                        ),
-
-                        /////////////////Data////////////
-                        SizedBox(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    _isLoading
-                                        ? "Loading..."
-                                        : (_currentUser?.fullName ?? "User"),
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                        const SizedBox(width: 15),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  _isLoading
+                                      ? "Loading..."
+                                      : (_currentUser?.fullName ?? "User"),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  // Add a refresh button
-                                  if (_currentUser?.fullName == null)
-                                    IconButton(
-                                      icon: Icon(Icons.refresh,
-                                          color: Colors.white, size: 16),
-                                      onPressed: () {
-                                        setState(() {
-                                          _isLoading = true;
-                                        });
-                                        _loadUserData();
-                                      },
-                                    ),
-                                ],
-                              ),
-                              Text(
-                                _isLoading
-                                    ? "Age: -"
-                                    : _currentUser?.dateOfBirth != null
-                                        ? "Age: ${calculateAge(_currentUser!.dateOfBirth!)}"
-                                        : "Age: Not set",
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
                                 ),
+                                // Add a refresh button
+                                if (_currentUser?.fullName == null)
+                                  IconButton(
+                                    icon: const Icon(Icons.refresh,
+                                        color: Colors.white, size: 16),
+                                    onPressed: () {
+                                      setState(() {
+                                        _isLoading = true;
+                                      });
+                                      _loadUserData();
+                                    },
+                                  ),
+                              ],
+                            ),
+                            Text(
+                              _isLoading
+                                  ? "Age: -"
+                                  : _currentUser?.dateOfBirth != null
+                                      ? "Age: ${calculateAge(_currentUser!.dateOfBirth!)}"
+                                      : "Age: Not set",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-
-                        const SizedBox(
-                          width: 120,
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Image.asset(
+                          'assets/Logo.png',
+                          height: 40,
+                          width: 90,
                         ),
-
-                        /////////////////Logo & Icons////////////
-                        const SizedBox(
-                          child: Column(
-                            children: [
-                              Image(
-                                image: AssetImage(
-                                  'assets/Logo.png',
-                                ),
-                                height: 40,
-                                width: 90,
-                              ),
-                              Row(
-                                children: [
-                                  SizedBox(width: 10),
-                                  Icon(
-                                    Icons.notifications_active,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                  SizedBox(width: 10),
-                                  Icon(
-                                    Icons.question_mark_outlined,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                  SizedBox(width: 10),
-                                  Icon(
-                                    Icons.share,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.notifications_active, color: Colors.white, size: 20),
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationsScreen()));
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.question_mark_outlined, color: Colors.white, size: 20),
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => FAQScreen()));
+                              },
+                            ),
+                            const Icon(
+                              Icons.share,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -231,119 +227,43 @@ class _LandingPageState extends State<LandingPage> {
                     height: 45,
                   ),
 
-                  ////////////////// Attributes (Icons) /////////////////
-                  SizedBox(
+                  ////////////////// Updated Icons Section with Navigation /////////////////
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        const SizedBox(
-                          width: 25,
-                        ),
-                        InkWell(
-                          onTap: () {
-                            // Handle profile button tap
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => EditProfilePage()),
-                            );
+                        _buildIconWithLabel(
+                          context,
+                          'assets/profile.png',
+                          'Profile',
+                          () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfilePage()));
                           },
-                          child: Image.asset(
-                            'assets/profile.png',
-                            height: 80,
-                            width: 80,
-                          ),
                         ),
-                        const SizedBox(
-                          width: 15,
-                        ),
-                        InkWell(
-                          onTap: () {
-                            // Handle achievements button tap
-                            print('Achievements button tapped');
+                        _buildIconWithLabel(
+                          context,
+                          'assets/achieve.png',
+                          'Settings',
+                          () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsScreen()));
                           },
-                          child: Image.asset(
-                            'assets/achieve.png',
-                            height: 80,
-                            width: 80,
-                          ),
                         ),
-                        const SizedBox(
-                          width: 15,
-                        ),
-                        InkWell(
-                          onTap: () {
-                            // Handle goals button tap
-                            print('Goals button tapped');
+                        _buildIconWithLabel(
+                          context,
+                          'assets/goals.png',
+                          'Guide',
+                          () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => InstructionsScreen()));
                           },
-                          child: Image.asset(
-                            'assets/goals.png',
-                            height: 80,
-                            width: 80,
-                          ),
                         ),
-                        const SizedBox(
-                          width: 15,
-                        ),
-                        InkWell(
-                          onTap: () {
-                            // Handle help button tap
-                            print('Help button tapped');
+                        _buildIconWithLabel(
+                          context,
+                          'assets/help.png',
+                          'About',
+                          () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => AboutPage()));
                           },
-                          child: Image.asset(
-                            'assets/help.png',
-                            height: 80,
-                            width: 80,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 20,
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  ////////////////// Attributes (Icons - Titles) /////////////////
-                  const SizedBox(
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 41,
-                        ),
-                        Text('Profile',
-                            style: TextStyle(
-                              color: Color(0xff0383c2),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            )),
-                        SizedBox(
-                          width: 52,
-                        ),
-                        Text('Goals',
-                            style: TextStyle(
-                              color: Color(0xff0383c2),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            )),
-                        SizedBox(
-                          width: 33,
-                        ),
-                        Text('Achievement',
-                            style: TextStyle(
-                              color: Color(0xff0383c2),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w900,
-                            )),
-                        SizedBox(
-                          width: 31,
-                        ),
-                        Text('Help',
-                            style: TextStyle(
-                              color: Color(0xff0383c2),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            )),
-                        SizedBox(
-                          width: 20,
                         ),
                       ],
                     ),
@@ -368,7 +288,7 @@ class _LandingPageState extends State<LandingPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => SummaryPage()),
+                              builder: (context) => HealthSummaryScreen()),
                         );
                       },
                       child: Row(
