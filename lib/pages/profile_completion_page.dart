@@ -167,7 +167,8 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
 
       // Convert DateTime to String before storing
       if (_selectedDate != null) {
-        basicInfoData['dateOfBirth'] = DateFormat('yyyy-MM-dd').format(_selectedDate!);
+        basicInfoData['dateOfBirth'] =
+            DateFormat('yyyy-MM-dd').format(_selectedDate!);
       }
 
       // Prepare medical info
@@ -1036,16 +1037,27 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                             onPressed: _isLoading ? null : _saveProfile,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF0383C2),
+                              foregroundColor: Colors
+                                  .white, // Add this to ensure text is white
+                              disabledBackgroundColor:
+                                  Colors.grey, // Better disabled state
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30.0),
                               ),
                             ),
                             child: _isLoading
-                                ? const CircularProgressIndicator(
-                                    color: Colors.white)
+                                ? const SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2.0,
+                                    ))
                                 : const Text(
                                     'Save Profile',
                                     style: TextStyle(
+                                      color: Colors
+                                          .white, // Explicitly set text color
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                     ),

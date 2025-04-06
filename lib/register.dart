@@ -98,83 +98,150 @@ class _RegisterPageState extends State<RegisterPage> {
       final user = userCredential.user;
       print("User created successfully: ${user?.uid}");
 
-      // The rest of your existing code...
-    } catch (e) {
-      print("Registration error: $e");
-
-      // This is the key fix - check if user was created despite the error
-      final createdUser = FirebaseAuth.instance.currentUser;
-      if (createdUser != null) {
-        print("User was created despite error: ${createdUser.uid}");
-
-        // Try to save user data to Firestore
+      if (user != null) {
+        // Save user data to Firestore
         try {
           final userService = UserService();
-          await userService.createUser(
-              createdUser, _nameController.text.trim());
-          print("User data saved to Firestore despite initial error");
+          await userService.createUser(user, _nameController.text.trim());
+          print("User data saved to Firestore");
         } catch (firestoreError) {
           print("Error saving to Firestore: $firestoreError");
+          // Continue despite error
         }
 
-        // Set loading to false
-        setState(() {
-          _isLoading = false;
-        });
-
-        if (!mounted) return;
-
-        // Continue with normal flow as if registration was successful
-        Future.delayed(Duration.zero, () {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (BuildContext dialogContext) {
-              return AlertDialog(
-                title: const Text('Account Created Successfully'),
-                content:
-                    const Text('Would you like to complete your profile now?'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(dialogContext).pop();
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                            builder: (context) => const LandingPage()),
-                        (route) => false,
-                      );
-                    },
-                    child: const Text('Skip for now'),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0383C2),
-                    ),
-                    onPressed: () {
-                      Navigator.of(dialogContext).pop();
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                          builder: (context) => const ProfileCompletionPage(
-                              isAfterRegistration: true),
-                        ),
-                        (route) => false,
-                      );
-                    },
-                    child: const Text('Complete Profile'),
-                  ),
-                ],
-              );
-            },
-          );
-        });
-      } else {
-        // Only show error if no user was created
+        // Reset loading state
         if (mounted) {
           setState(() {
-            _errorMessage = "Registration failed: ${e.toString()}";
             _isLoading = false;
           });
         }
+
+        if (!mounted) return;
+
+        // Show dialog for profile completion
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext dialogContext) {
+            return AlertDialog(
+              title: const Text('Account Created Successfully'),
+              content:
+                  const Text('Would you like to complete your profile now?'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop();
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                          builder: (context) => const LandingPage()),
+                      (route) => false,
+                    );
+                  },
+                  child: const Text('Skip for now'),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0383C2),
+                    foregroundColor:
+                        Colors.white, // Add this to ensure text is white
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
+                  ),
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop();
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                        builder: (context) => const ProfileCompletionPage(
+                          isAfterRegistration: true,
+                        ),
+                      ),
+                      (route) => false,
+                    );
+                  },
+                  child: const Text('Complete Profile'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      print("Registration error: $e");
+
+      // Add this critical line to reset loading state on error
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = "Registration failed: ${e.toString()}";
+        });
+      }
+
+      // Check if the user was created despite the error
+      final createdUser = FirebaseAuth.instance.currentUser;
+      if (createdUser != null) {
+        // Reset loading state (redundant but ensures it happens)
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+
+        if (!mounted) return;
+
+        // Show dialog for profile completion
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext dialogContext) {
+            return AlertDialog(
+              title: const Text('Account Created Successfully'),
+              content:
+                  const Text('Would you like to complete your profile now?'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop();
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                          builder: (context) => const LandingPage()),
+                      (route) => false,
+                    );
+                  },
+                  child: const Text('Skip for now'),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0383C2),
+                    foregroundColor:
+                        Colors.white, // Add this to ensure text is white
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
+                  ),
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop();
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                        builder: (context) => const ProfileCompletionPage(
+                          isAfterRegistration: true,
+                        ),
+                      ),
+                      (route) => false,
+                    );
+                  },
+                  child: const Text('Complete Profile'),
+                ),
+              ],
+            );
+          },
+        );
       }
     }
   }

@@ -8,14 +8,20 @@ import 'package:bio_track/LandingPage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:bio_track/logInPage.dart';
 import 'package:bio_track/register.dart';
+import 'package:bio_track/theme_provider.dart';
+import 'package:bio_track/theme_config.dart';
 
-// Add this global variable
 bool ignoreAuthChanges = false;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -23,43 +29,26 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'BioTrack',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        textTheme: GoogleFonts.montserratTextTheme(
-          Theme.of(context).textTheme,
-        ),
-        primaryTextTheme: GoogleFonts.montserratTextTheme(
-          Theme.of(context).primaryTextTheme,
-        ),
-        colorScheme: const ColorScheme.light(
-          primary: Color(0xFF0383C2),
-        ),
-      ),
-      home: StartScreen(), // Set StartScreen as the initial screen
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return MaterialApp(
+          title: 'BioTrack',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light(context),
+          darkTheme: AppTheme.dark(context),
+          themeMode:
+              themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+          home: StartScreen(), // Set StartScreen as the initial screen
+        );
+      },
     );
   }
 }
 
-// If you have an AuthenticationWrapper class like this:
 class AuthenticationWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Disable auto-navigation based on auth state
     return HomePage();
-
-    // Comment out any code like this:
-    /*
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return StartScreen();
-        }
-        return HomePage();
-      },
-    );
-    */
   }
 }
