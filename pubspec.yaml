@@ -83,12 +83,21 @@ flutter:
    - assets/Logo.png
    - assets/goals.png
    - assets/help.png
+   - assets/profile2.png
    - assets/profile.png
    - assets/achieve.png
    - assets/start_test.png
    - assets/prev_result.png
    - assets/Dr. Amira.jpg
-   - assets/App_Icon/healthy.png
+   - assets/Abdelrahman Fawzy .jpg
+   - assets/Abdelrahman Hamouda.jpg
+   - assets/AbdELRhman Hefny .jpg
+   - assets/Aya Abbas .jpg
+   - assets/Aya Aymen .jpg
+   - assets/Haneen Siyaam .jpg
+   - assets/Mohamed Elawady .jpg
+   - assets/Mohamed Sabry.jpg
+   - assets/Tuqa Elsaeed .jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

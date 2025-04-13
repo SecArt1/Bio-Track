@@ -46,8 +46,7 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
   final List<String> _genders = [
     'Male',
     'Female',
-    'Other',
-    'Prefer not to say'
+    
   ];
 
   // Blood type options
