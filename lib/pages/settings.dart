@@ -4,6 +4,8 @@ import 'package:bio_track/forgotPassword.dart';
 import 'package:bio_track/logInPage.dart';
 import 'package:provider/provider.dart';
 import 'package:bio_track/theme_provider.dart';
+import 'package:bio_track/l10n/app_localizations.dart';
+import 'package:bio_track/l10n/language_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override
@@ -12,19 +14,22 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool isNotificationsEnabled = true;
-  String selectedLanguage = "English";
 
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final localizations = AppLocalizations.of(context);
     final isDarkMode = themeProvider.isDarkMode;
     final theme = Theme.of(context);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text("Settings",
-            style: TextStyle(color: theme.appBarTheme.foregroundColor)),
+        title: Text(
+          localizations.translate("settings"),
+          style: TextStyle(color: theme.appBarTheme.foregroundColor),
+        ),
         backgroundColor: theme.appBarTheme.backgroundColor,
         iconTheme: IconThemeData(color: theme.appBarTheme.foregroundColor),
         elevation: 2,
@@ -41,7 +46,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Icon(Icons.person, color: theme.iconTheme.color),
                   SizedBox(width: 8),
                   Text(
-                    "Account",
+                    localizations.translate("account"),
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -53,7 +58,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Divider(height: 15, thickness: 2, color: theme.dividerColor),
               ListTile(
                 title: Text(
-                  "Change Password",
+                  localizations.translate("change_password"),
                   style: TextStyle(color: theme.colorScheme.onBackground),
                 ),
                 trailing: Icon(Icons.arrow_forward_ios,
@@ -70,37 +75,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Language",
+                      localizations.translate("language"),
                       style: TextStyle(color: theme.colorScheme.onBackground),
                     ),
-                    DropdownButton<String>(
-                      value: selectedLanguage,
+                    DropdownButton<Locale>(
+                      value: languageProvider.currentLocale,
                       dropdownColor: theme.cardColor,
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          selectedLanguage = newValue!;
-                        });
+                      onChanged: (Locale? newLocale) {
+                        if (newLocale != null) {
+                          languageProvider.changeLanguage(newLocale);
+                        }
                       },
-                      items: [
-                        "English",
-                        "Arabic",
-                      ].map<DropdownMenuItem<String>>((String language) {
-                        return DropdownMenuItem<String>(
-                          value: language,
-                          child: Text(
-                            language,
-                            style: TextStyle(
-                                color: theme.colorScheme.onBackground),
-                          ),
-                        );
-                      }).toList(),
+                      items: const [
+                        DropdownMenuItem<Locale>(
+                          value: Locale('en'),
+                          child: Text('English'),
+                        ),
+                        DropdownMenuItem<Locale>(
+                          value: Locale('ar'),
+                          child: Text('العربية'),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
               ListTile(
                 title: Text(
-                  "Terms and Conditions",
+                  localizations.translate("terms_and_conditions"),
                   style: TextStyle(color: theme.colorScheme.onBackground),
                 ),
                 trailing: Icon(Icons.arrow_forward_ios,
@@ -111,7 +113,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               SwitchListTile(
                 title: Text(
-                  "Notifications",
+                  localizations.translate("notifications"),
                   style: TextStyle(color: theme.colorScheme.onBackground),
                 ),
                 value: isNotificationsEnabled,
@@ -124,7 +126,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               SwitchListTile(
                 title: Text(
-                  "Dark Mode",
+                  localizations.translate("dark_mode"),
                   style: TextStyle(color: theme.colorScheme.onBackground),
                 ),
                 value: isDarkMode,
@@ -139,7 +141,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Icon(Icons.volume_up_outlined, color: theme.iconTheme.color),
                   SizedBox(width: 8),
                   Text(
-                    "Help",
+                    localizations.translate("help"),
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -152,7 +154,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               SizedBox(height: 10),
               ListTile(
                 title: Text(
-                  "Frequently Asked Questions",
+                  localizations.translate("faq"),
                   style: TextStyle(color: theme.colorScheme.onBackground),
                 ),
                 trailing: Icon(Icons.arrow_forward_ios,
@@ -164,7 +166,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               ListTile(
                 title: Text(
-                  "Contact Us",
+                  localizations.translate("contact_us"),
                   style: TextStyle(color: theme.colorScheme.onBackground),
                 ),
                 trailing: Icon(Icons.arrow_forward_ios,
@@ -186,7 +188,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Navigator.pushReplacement(context,
                         MaterialPageRoute(builder: (context) => HomePage()));
                   },
-                  child: Text("Log Out", style: TextStyle(fontSize: 16)),
+                  child: Text(localizations.translate("logout"),
+                      style: TextStyle(fontSize: 16)),
                 ),
               ),
             ],

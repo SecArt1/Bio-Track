@@ -5,6 +5,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:bio_track/LandingPage.dart';
+// Import localization
+import 'package:bio_track/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:bio_track/l10n/language_provider.dart';
 
 class ProfileCompletionPage extends StatefulWidget {
   final bool isAfterRegistration;
@@ -26,6 +30,7 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
   final _addressController = TextEditingController();
   DateTime? _selectedDate;
   String? _selectedGender;
+  String? _selectedBloodType;
   final _bloodTypeController = TextEditingController();
   final _allergiesController = TextEditingController();
   final _medicationsController = TextEditingController();
@@ -46,7 +51,6 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
   final List<String> _genders = [
     'Male',
     'Female',
-    
   ];
 
   // Blood type options
@@ -82,6 +86,7 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
             _addressController.text = user.address ?? '';
             _selectedDate = user.dateOfBirth;
             _selectedGender = user.gender;
+            _selectedBloodType = user.bloodType;
             _bloodTypeController.text = user.bloodType ?? '';
             _allergiesController.text = user.allergies?.join(', ') ?? '';
             _medicationsController.text = user.medications?.join(', ') ?? '';
@@ -263,13 +268,17 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final isArabic = languageProvider.isArabic;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: const Color(0xFF0383C2),
         elevation: 0,
-        title: const Text('Complete Your Profile',
-            style: TextStyle(color: Colors.white)),
+        title: Text(localizations.translate('complete_profile'),
+            style: const TextStyle(color: Colors.white)),
         leading: widget.isAfterRegistration
             ? null
             : IconButton(
@@ -289,21 +298,25 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(16.0),
                     color: const Color(0xFF0383C2),
-                    child: const Column(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Help us personalize your experience',
-                          style: TextStyle(
+                          isArabic
+                              ? localizations
+                                  .translate('personalize_experience')
+                              : localizations
+                                  .translate('personalize_experience'),
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
-                          'All fields are optional and you can update them later',
-                          style: TextStyle(
+                          localizations.translate('optional_fields'),
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,
                           ),
@@ -330,9 +343,9 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                                 _basicInfoExpanded = expanded;
                               });
                             },
-                            title: const Text(
-                              'Basic Information',
-                              style: TextStyle(
+                            title: Text(
+                              localizations.translate('basic_information'),
+                              style: const TextStyle(
                                 color: Color(0xFF0383C2),
                                 fontWeight: FontWeight.bold,
                               ),
@@ -351,7 +364,8 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                                             255, 3, 131, 194),
                                         iconColor: const Color.fromARGB(
                                             255, 3, 131, 194),
-                                        labelText: 'Phone Number',
+                                        labelText:
+                                            localizations.translate('phone'),
                                         labelStyle: const TextStyle(
                                           color:
                                               Color.fromARGB(255, 95, 127, 154),
@@ -393,7 +407,8 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                                               255, 3, 131, 194),
                                           iconColor: const Color.fromARGB(
                                               255, 3, 131, 194),
-                                          labelText: 'Date of Birth',
+                                          labelText: localizations
+                                              .translate('date_of_birth'),
                                           labelStyle: const TextStyle(
                                             color: Color.fromARGB(
                                                 255, 95, 127, 154),
@@ -426,7 +441,8 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                                         ),
                                         child: Text(
                                           _selectedDate == null
-                                              ? 'Select Date'
+                                              ? localizations
+                                                  .translate('select_date')
                                               : DateFormat('MMM dd, yyyy')
                                                   .format(_selectedDate!),
                                           style: TextStyle(
@@ -447,7 +463,8 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                                             255, 3, 131, 194),
                                         iconColor: const Color.fromARGB(
                                             255, 3, 131, 194),
-                                        labelText: 'Gender',
+                                        labelText:
+                                            localizations.translate('gender'),
                                         labelStyle: const TextStyle(
                                           color:
                                               Color.fromARGB(255, 95, 127, 154),
@@ -477,12 +494,18 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                                                   255, 3, 131, 194)),
                                         ),
                                       ),
-                                      items: _genders.map((gender) {
-                                        return DropdownMenuItem<String>(
-                                          value: gender,
-                                          child: Text(gender),
-                                        );
-                                      }).toList(),
+                                      items: [
+                                        DropdownMenuItem(
+                                          value: 'male',
+                                          child: Text(
+                                              localizations.translate('male')),
+                                        ),
+                                        DropdownMenuItem(
+                                          value: 'female',
+                                          child: Text(localizations
+                                              .translate('female')),
+                                        ),
+                                      ],
                                       onChanged: (value) {
                                         setState(() {
                                           _selectedGender = value;
@@ -494,13 +517,13 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                                     // Address
                                     TextField(
                                       controller: _addressController,
-                                      maxLines: 2,
                                       decoration: InputDecoration(
                                         fillColor: const Color.fromARGB(
                                             255, 3, 131, 194),
                                         iconColor: const Color.fromARGB(
                                             255, 3, 131, 194),
-                                        labelText: 'Address',
+                                        labelText:
+                                            localizations.translate('address'),
                                         labelStyle: const TextStyle(
                                           color:
                                               Color.fromARGB(255, 95, 127, 154),
@@ -552,9 +575,9 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                                 _medicalInfoExpanded = expanded;
                               });
                             },
-                            title: const Text(
-                              'Medical Information',
-                              style: TextStyle(
+                            title: Text(
+                              localizations.translate('medical_information'),
+                              style: const TextStyle(
                                 color: Color(0xFF0383C2),
                                 fontWeight: FontWeight.bold,
                               ),
@@ -566,15 +589,14 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                                   children: [
                                     // Blood Type
                                     DropdownButtonFormField<String>(
-                                      value: _bloodTypeController.text.isEmpty
-                                          ? null
-                                          : _bloodTypeController.text,
+                                      value: _selectedBloodType,
                                       decoration: InputDecoration(
                                         fillColor: const Color.fromARGB(
                                             255, 3, 131, 194),
                                         iconColor: const Color.fromARGB(
                                             255, 3, 131, 194),
-                                        labelText: 'Blood Type',
+                                        labelText: localizations
+                                            .translate('blood_type'),
                                         labelStyle: const TextStyle(
                                           color:
                                               Color.fromARGB(255, 95, 127, 154),
@@ -604,16 +626,25 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                                                   255, 3, 131, 194)),
                                         ),
                                       ),
-                                      items: _bloodTypes.map((type) {
+                                      items: [
+                                        'A+',
+                                        'A-',
+                                        'B+',
+                                        'B-',
+                                        'AB+',
+                                        'AB-',
+                                        'O+',
+                                        'O-'
+                                      ].map((String value) {
                                         return DropdownMenuItem<String>(
-                                          value: type,
-                                          child: Text(type),
+                                          value: value,
+                                          child: Text(value),
                                         );
                                       }).toList(),
                                       onChanged: (value) {
-                                        if (value != null) {
-                                          _bloodTypeController.text = value;
-                                        }
+                                        setState(() {
+                                          _selectedBloodType = value;
+                                        });
                                       },
                                     ),
                                     const SizedBox(height: 16),
@@ -626,9 +657,10 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                                             255, 3, 131, 194),
                                         iconColor: const Color.fromARGB(
                                             255, 3, 131, 194),
-                                        labelText:
-                                            'Allergies (comma separated)',
-                                        hintText: 'e.g. Peanuts, Penicillin',
+                                        labelText: localizations
+                                            .translate('allergies'),
+                                        hintText: localizations
+                                            .translate('allergies_hint'),
                                         labelStyle: const TextStyle(
                                           color:
                                               Color.fromARGB(255, 95, 127, 154),
@@ -669,9 +701,10 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                                             255, 3, 131, 194),
                                         iconColor: const Color.fromARGB(
                                             255, 3, 131, 194),
-                                        labelText:
-                                            'Current Medications (comma separated)',
-                                        hintText: 'e.g. Aspirin, Insulin',
+                                        labelText: localizations
+                                            .translate('medications'),
+                                        hintText: localizations
+                                            .translate('medications_hint'),
                                         labelStyle: const TextStyle(
                                           color:
                                               Color.fromARGB(255, 95, 127, 154),
@@ -713,9 +746,10 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                                             255, 3, 131, 194),
                                         iconColor: const Color.fromARGB(
                                             255, 3, 131, 194),
-                                        labelText:
-                                            'Medical Conditions (comma separated)',
-                                        hintText: 'e.g. Asthma, Diabetes',
+                                        labelText: localizations
+                                            .translate('medical_conditions'),
+                                        hintText: localizations.translate(
+                                            'medical_conditions_hint'),
                                         labelStyle: const TextStyle(
                                           color:
                                               Color.fromARGB(255, 95, 127, 154),
@@ -768,9 +802,9 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                                 _emergencyContactExpanded = expanded;
                               });
                             },
-                            title: const Text(
-                              'Emergency Contact',
-                              style: TextStyle(
+                            title: Text(
+                              localizations.translate('emergency_contact'),
+                              style: const TextStyle(
                                 color: Color(0xFF0383C2),
                                 fontWeight: FontWeight.bold,
                               ),
@@ -788,7 +822,8 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                                             255, 3, 131, 194),
                                         iconColor: const Color.fromARGB(
                                             255, 3, 131, 194),
-                                        labelText: 'Name',
+                                        labelText:
+                                            localizations.translate('name'),
                                         labelStyle: const TextStyle(
                                           color:
                                               Color.fromARGB(255, 95, 127, 154),
@@ -830,7 +865,8 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                                             255, 3, 131, 194),
                                         iconColor: const Color.fromARGB(
                                             255, 3, 131, 194),
-                                        labelText: 'Phone Number',
+                                        labelText:
+                                            localizations.translate('phone'),
                                         labelStyle: const TextStyle(
                                           color:
                                               Color.fromARGB(255, 95, 127, 154),
@@ -871,9 +907,10 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                                             255, 3, 131, 194),
                                         iconColor: const Color.fromARGB(
                                             255, 3, 131, 194),
-                                        labelText: 'Relationship',
-                                        hintText:
-                                            'e.g. Spouse, Parent, Sibling',
+                                        labelText: localizations
+                                            .translate('relationship'),
+                                        hintText: localizations
+                                            .translate('relationship_hint'),
                                         labelStyle: const TextStyle(
                                           color:
                                               Color.fromARGB(255, 95, 127, 154),
@@ -925,9 +962,9 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                                 _healthMetricsExpanded = expanded;
                               });
                             },
-                            title: const Text(
-                              'Health Metrics',
-                              style: TextStyle(
+                            title: Text(
+                              localizations.translate('health_metrics'),
+                              style: const TextStyle(
                                 color: Color(0xFF0383C2),
                                 fontWeight: FontWeight.bold,
                               ),
@@ -946,7 +983,8 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                                             255, 3, 131, 194),
                                         iconColor: const Color.fromARGB(
                                             255, 3, 131, 194),
-                                        labelText: 'Height (cm)',
+                                        labelText:
+                                            localizations.translate('height'),
                                         labelStyle: const TextStyle(
                                           color:
                                               Color.fromARGB(255, 95, 127, 154),
@@ -988,7 +1026,8 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                                             255, 3, 131, 194),
                                         iconColor: const Color.fromARGB(
                                             255, 3, 131, 194),
-                                        labelText: 'Weight (kg)',
+                                        labelText:
+                                            localizations.translate('weight'),
                                         labelStyle: const TextStyle(
                                           color:
                                               Color.fromARGB(255, 95, 127, 154),
@@ -1036,10 +1075,8 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                             onPressed: _isLoading ? null : _saveProfile,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF0383C2),
-                              foregroundColor: Colors
-                                  .white, // Add this to ensure text is white
-                              disabledBackgroundColor:
-                                  Colors.grey, // Better disabled state
+                              foregroundColor: Colors.white,
+                              disabledBackgroundColor: Colors.grey,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30.0),
                               ),
@@ -1052,11 +1089,10 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                                       color: Colors.white,
                                       strokeWidth: 2.0,
                                     ))
-                                : const Text(
-                                    'Save Profile',
-                                    style: TextStyle(
-                                      color: Colors
-                                          .white, // Explicitly set text color
+                                : Text(
+                                    localizations.translate('save_profile'),
+                                    style: const TextStyle(
+                                      color: Colors.white,
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -1080,9 +1116,9 @@ class _ProfileCompletionPageState extends State<ProfileCompletionPage> {
                                         ),
                                       );
                                     },
-                              child: const Text(
-                                'Skip for now',
-                                style: TextStyle(
+                              child: Text(
+                                localizations.translate('skip_for_now'),
+                                style: const TextStyle(
                                   color: Color(0xFF0383C2),
                                   fontSize: 16,
                                 ),

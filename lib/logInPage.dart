@@ -7,6 +7,9 @@ import 'package:bio_track/forgotPassword.dart';
 import 'package:bio_track/LandingPage.dart';
 import 'package:bio_track/startScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+// Localization imports
+import 'package:bio_track/l10n/app_localizations.dart';
+import 'package:bio_track/l10n/language_provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -29,17 +32,18 @@ class _HomePageState extends State<HomePage> {
 
   // Form validation
   bool _validateForm() {
+    final localizations = AppLocalizations.of(context);
     // Reset error message
     setState(() => _errorMessage = null);
 
     // Check if fields are empty
     if (_emailController.text.trim().isEmpty) {
-      setState(() => _errorMessage = "Please enter your email");
+      setState(() => _errorMessage = localizations.translate("enter_email"));
       return false;
     }
 
     if (_passwordController.text.isEmpty) {
-      setState(() => _errorMessage = "Please enter your password");
+      setState(() => _errorMessage = localizations.translate("enter_password"));
       return false;
     }
 
@@ -48,6 +52,8 @@ class _HomePageState extends State<HomePage> {
 
   // Update your _signIn method
   Future<void> _signIn() async {
+    final localizations = AppLocalizations.of(context);
+
     if (!_validateForm()) return;
 
     setState(() {
@@ -83,30 +89,31 @@ class _HomePageState extends State<HomePage> {
       String errorMessage;
       switch (e.code) {
         case 'user-not-found':
-          errorMessage = 'No user found for that email.';
+          errorMessage = localizations.translate("user_not_found");
           break;
         case 'wrong-password':
-          errorMessage = 'Incorrect password.';
+          errorMessage = localizations.translate("wrong_password");
           break;
         case 'invalid-email':
-          errorMessage = 'Please provide a valid email address.';
+          errorMessage = localizations.translate("invalid_email");
           break;
         case 'user-disabled':
-          errorMessage = 'This user has been disabled.';
+          errorMessage = localizations.translate("user_disabled");
           break;
         case 'network-request-failed':
-          errorMessage = 'Network error. Check your connection.';
+          errorMessage = localizations.translate("network_error");
           break;
         case 'invalid-credential':
         case 'invalid-verification-code':
         case 'invalid-verification-id':
-          errorMessage = 'Invalid login credentials.';
+          errorMessage = localizations.translate("invalid_credentials");
           break;
         case 'too-many-requests':
-          errorMessage = 'Too many login attempts. Try again later.';
+          errorMessage = localizations.translate("too_many_requests");
           break;
         default:
-          errorMessage = 'Login error: ${e.message}';
+          errorMessage =
+              "${localizations.translate("login_error")}: ${e.message}";
           break;
       }
 
@@ -134,7 +141,7 @@ class _HomePageState extends State<HomePage> {
         // Only show error if we're not logged in
         if (mounted) {
           setState(() {
-            _errorMessage = "An error occurred. Please try again later.";
+            _errorMessage = localizations.translate("general_error");
             _isLoading = false;
           });
         }
@@ -151,6 +158,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final isArabic = languageProvider.isArabic;
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Column(
@@ -208,7 +219,7 @@ class _HomePageState extends State<HomePage> {
                         decoration: InputDecoration(
                           fillColor: const Color.fromARGB(255, 3, 131, 194),
                           iconColor: const Color.fromARGB(255, 3, 131, 194),
-                          labelText: 'Email',
+                          labelText: localizations.translate("email"),
                           labelStyle: const TextStyle(
                             color: Color.fromARGB(255, 95, 127, 154),
                           ),
@@ -242,7 +253,7 @@ class _HomePageState extends State<HomePage> {
                         decoration: InputDecoration(
                           fillColor: const Color.fromARGB(255, 3, 131, 194),
                           iconColor: const Color.fromARGB(255, 3, 131, 194),
-                          labelText: 'Password',
+                          labelText: localizations.translate("password"),
                           labelStyle: TextStyle(
                             color: const Color.fromARGB(255, 95, 127, 154),
                           ),
@@ -295,9 +306,9 @@ class _HomePageState extends State<HomePage> {
                                   builder: (context) => ForgotPassword()),
                             );
                           },
-                    child: const Text(
-                      'Forgot Password?',
-                      style: TextStyle(color: Colors.white),
+                    child: Text(
+                      localizations.translate("forgot_password"),
+                      style: const TextStyle(color: Colors.white),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -314,17 +325,17 @@ class _HomePageState extends State<HomePage> {
                         ? const CircularProgressIndicator(
                             color: Color.fromARGB(255, 2, 113, 169),
                           )
-                        : const Text(
-                            'Login',
-                            style: TextStyle(
+                        : Text(
+                            localizations.translate("sign_in"),
+                            style: const TextStyle(
                               color: Color.fromARGB(255, 2, 113, 169),
                             ),
                           ),
                   ),
                   const SizedBox(height: 20),
-                  const Text(
-                    'or',
-                    style: TextStyle(color: Colors.white),
+                  Text(
+                    localizations.translate("or"),
+                    style: const TextStyle(color: Colors.white),
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
@@ -347,9 +358,9 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-                    child: const Text(
-                      'Create an account',
-                      style: TextStyle(color: Colors.white),
+                    child: Text(
+                      localizations.translate("create_account"),
+                      style: const TextStyle(color: Colors.white),
                     ),
                   ),
                 ],

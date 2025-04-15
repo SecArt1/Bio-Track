@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:bio_track/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:bio_track/l10n/language_provider.dart';
 
 class EditProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final isArabic = languageProvider.isArabic;
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 255, 255),
 
@@ -10,9 +17,9 @@ class EditProfilePage extends StatelessWidget {
 
       //AppBar with Title
       appBar: AppBar(
-        title: const Text(
-          'Edit Profile',
-          style: TextStyle(
+        title: Text(
+          localizations.translate("edit_profile"),
+          style: const TextStyle(
             color: Color(0xff0383c2),
             fontSize: 22,
             fontWeight: FontWeight.bold,
@@ -61,7 +68,7 @@ class EditProfilePage extends StatelessWidget {
                 height: 80,
                 child: TextField(
                   decoration: InputDecoration(
-                    labelText: 'Name',
+                    labelText: localizations.translate("name"),
                     labelStyle: const TextStyle(
                       color: Color.fromARGB(255, 95, 127, 154),
                     ),
@@ -83,7 +90,7 @@ class EditProfilePage extends StatelessWidget {
                 height: 60,
                 child: InputDecorator(
                   decoration: InputDecoration(
-                    labelText: 'Gender',
+                    labelText: localizations.translate("gender"),
                     labelStyle: const TextStyle(
                       color: Color.fromARGB(255, 95, 127, 154),
                     ),
@@ -96,16 +103,17 @@ class EditProfilePage extends StatelessWidget {
                   ),
                   child: DropdownButton<String>(
                     isExpanded: true,
-                    hint: const Text("Select Gender"),
-                    value: null, // Add a variable here to manage the selected value
-                    items: const [
+                    hint: Text(localizations.translate("gender")),
+                    value:
+                        null, // Add a variable here to manage the selected value
+                    items: [
                       DropdownMenuItem<String>(
                         value: 'Male',
-                        child: Text('Male'),
+                        child: Text(localizations.translate("male")),
                       ),
                       DropdownMenuItem<String>(
                         value: 'Female',
-                        child: Text('Female'),
+                        child: Text(localizations.translate("female")),
                       ),
                     ],
                     onChanged: (value) {
@@ -124,7 +132,7 @@ class EditProfilePage extends StatelessWidget {
                 height: 80,
                 child: TextField(
                   decoration: InputDecoration(
-                    labelText: 'Date of Birth',
+                    labelText: localizations.translate("date_of_birth"),
                     labelStyle: const TextStyle(
                       color: Color.fromARGB(255, 95, 127, 154),
                     ),
@@ -155,7 +163,7 @@ class EditProfilePage extends StatelessWidget {
                 height: 80,
                 child: TextField(
                   decoration: InputDecoration(
-                    labelText: 'Height (cm)',
+                    labelText: localizations.translate("height"),
                     labelStyle: const TextStyle(
                       color: Color.fromARGB(255, 95, 127, 154),
                     ),
@@ -176,7 +184,7 @@ class EditProfilePage extends StatelessWidget {
                 height: 80,
                 child: TextField(
                   decoration: InputDecoration(
-                    labelText: 'Phone Number',
+                    labelText: localizations.translate("phone"),
                     labelStyle: const TextStyle(
                       color: Color.fromARGB(255, 95, 127, 154),
                     ),
@@ -196,7 +204,7 @@ class EditProfilePage extends StatelessWidget {
                 height: 80,
                 child: TextField(
                   decoration: InputDecoration(
-                    labelText: 'Email',
+                    labelText: localizations.translate("email"),
                     labelStyle: const TextStyle(
                       color: Color.fromARGB(255, 95, 127, 154),
                     ),
@@ -216,7 +224,7 @@ class EditProfilePage extends StatelessWidget {
                 height: 80,
                 child: TextField(
                   decoration: InputDecoration(
-                    labelText: 'Password',
+                    labelText: localizations.translate("password"),
                     labelStyle: const TextStyle(
                       color: Color.fromARGB(255, 95, 127, 154),
                     ),
@@ -251,9 +259,9 @@ class EditProfilePage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      child: const Text(
-                        'Save',
-                        style: TextStyle(
+                      child: Text(
+                        localizations.translate("save"),
+                        style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
@@ -275,9 +283,9 @@ class EditProfilePage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      child: const Text(
-                        'Clear',
-                        style: TextStyle(
+                      child: Text(
+                        localizations.translate("clear"),
+                        style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,

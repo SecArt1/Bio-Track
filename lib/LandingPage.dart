@@ -9,6 +9,10 @@ import 'package:bio_track/pages/about.dart';
 import 'package:bio_track/pages/guide.dart';
 import 'package:bio_track/pages/notifications.dart';
 import 'package:bio_track/pages/settings.dart';
+// Localization imports
+import 'package:bio_track/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:bio_track/l10n/language_provider.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
@@ -63,7 +67,10 @@ class _LandingPageState extends State<LandingPage> {
   }
 
   // Helper method for icon buttons
-  Widget _buildIconWithLabel(BuildContext context, String assetPath, String label, VoidCallback onTap) {
+  Widget _buildIconWithLabel(BuildContext context, String assetPath,
+      String translationKey, VoidCallback onTap) {
+    final localizations = AppLocalizations.of(context);
+
     return Flexible(
       child: Column(
         children: [
@@ -72,7 +79,14 @@ class _LandingPageState extends State<LandingPage> {
             child: Image.asset(assetPath, height: 75, width: 75),
           ),
           const SizedBox(height: 3),
-          Text(label, style: const TextStyle(color: Color(0xff0383c2), fontSize: 16, fontWeight: FontWeight.w500)),
+          Text(
+            localizations.translate(translationKey),
+            style: const TextStyle(
+                color: Color(0xff0383c2),
+                fontSize: 16,
+                fontWeight: FontWeight.w500),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
@@ -80,6 +94,9 @@ class _LandingPageState extends State<LandingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    final languageProvider = Provider.of<LanguageProvider>(context);
+
     return Scaffold(
       backgroundColor: const Color(0XFF0383c2),
 /////////////////////////// Part 1 /////////////////////////////////
@@ -91,7 +108,8 @@ class _LandingPageState extends State<LandingPage> {
               width: double.infinity,
               color: const Color(0xFF0383C2),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -110,8 +128,9 @@ class _LandingPageState extends State<LandingPage> {
                               children: [
                                 Text(
                                   _isLoading
-                                      ? "Loading..."
-                                      : (_currentUser?.fullName ?? "User"),
+                                      ? localizations.translate("loading")
+                                      : (_currentUser?.fullName ??
+                                          localizations.translate("user")),
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 18,
@@ -134,10 +153,10 @@ class _LandingPageState extends State<LandingPage> {
                             ),
                             Text(
                               _isLoading
-                                  ? "Age: -"
+                                  ? "${localizations.translate("age")}: -"
                                   : _currentUser?.dateOfBirth != null
-                                      ? "Age: ${calculateAge(_currentUser!.dateOfBirth!)}"
-                                      : "Age: Not set",
+                                      ? "${localizations.translate("age")}: ${calculateAge(_currentUser!.dateOfBirth!)}"
+                                      : "${localizations.translate("age")}: ${localizations.translate("not_set")}",
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
@@ -158,15 +177,24 @@ class _LandingPageState extends State<LandingPage> {
                         Row(
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.notifications_active, color: Colors.white, size: 20),
+                              icon: const Icon(Icons.notifications_active,
+                                  color: Colors.white, size: 20),
                               onPressed: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationsScreen()));
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            NotificationsScreen()));
                               },
                             ),
                             IconButton(
-                              icon: const Icon(Icons.question_mark_outlined, color: Colors.white, size: 20),
+                              icon: const Icon(Icons.question_mark_outlined,
+                                  color: Colors.white, size: 20),
                               onPressed: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => FAQScreen()));
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => FAQScreen()));
                               },
                             ),
                             const Icon(
@@ -211,8 +239,8 @@ class _LandingPageState extends State<LandingPage> {
                       SizedBox(
                         child: Text(
                           _isLoading
-                              ? "Hello!"
-                              : "Hello, ${_currentUser?.fullName ?? 'User'}!",
+                              ? "${localizations.translate("hello")}!"
+                              : "${localizations.translate("hello")}, ${_currentUser?.fullName ?? localizations.translate("user")}!",
                           style: const TextStyle(
                             color: Color(0xFF0383c2),
                             fontSize: 24,
@@ -236,33 +264,46 @@ class _LandingPageState extends State<LandingPage> {
                         _buildIconWithLabel(
                           context,
                           'assets/profile.png',
-                          'Profile',
+                          'profile',
                           () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfilePage()));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => EditProfilePage()));
                           },
                         ),
                         _buildIconWithLabel(
                           context,
                           'assets/achieve.png',
-                          'Settings',
+                          'settings',
                           () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsScreen()));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => SettingsScreen()));
                           },
                         ),
                         _buildIconWithLabel(
                           context,
                           'assets/goals.png',
-                          'Guide',
+                          'guide',
                           () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => InstructionsScreen()));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        InstructionsScreen()));
                           },
                         ),
                         _buildIconWithLabel(
                           context,
                           'assets/help.png',
-                          'About',
+                          'about',
                           () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => AboutPage()));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => AboutPage()));
                           },
                         ),
                       ],
@@ -294,9 +335,9 @@ class _LandingPageState extends State<LandingPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            "Start Test",
-                            style: TextStyle(
+                          Text(
+                            localizations.translate("start_test"),
+                            style: const TextStyle(
                               fontSize: 25,
                               fontWeight: FontWeight.bold,
                               color: Color(0xff065f89),
@@ -335,9 +376,9 @@ class _LandingPageState extends State<LandingPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            "Previous Result",
-                            style: TextStyle(
+                          Text(
+                            localizations.translate("previous_results"),
+                            style: const TextStyle(
                               fontSize: 25,
                               fontWeight: FontWeight.bold,
                               color: Color(0xff065f89),

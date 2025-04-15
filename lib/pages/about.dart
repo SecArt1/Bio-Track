@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+// Import localization
+import 'package:bio_track/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:bio_track/l10n/language_provider.dart';
 
 class AboutPage extends StatelessWidget {
   final List<Map<String, String>> teamMembers = [
@@ -56,36 +60,36 @@ class AboutPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final isArabic = languageProvider.isArabic;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("About us",
-        style:
-          TextStyle(color: Colors.white),),
+        title: Text(
+          localizations.translate("about_us"),
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Color(0xff0383c2),
       ),
       body: Column(
         children: [
-
           Padding(
             padding: EdgeInsets.all(16.0),
             child: Text(
-              "BioTrack is an advanced health monitoring system that measures vital signs such as body composition, heart rate, blood glucose, and temperature, focusing on lower limb health. It provides accurate insights through a user-friendly mobile application.",
+              localizations.translate("about_description"),
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16, color: Colors.black87),
             ),
           ),
-
-
           Padding(
             padding: EdgeInsets.all(16.0),
             child: Text(
-              "Team Members",
+              localizations.translate("team_members"),
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
           ),
-
-
           Expanded(
             child: ListView.builder(
               padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -104,7 +108,6 @@ class AboutPage extends StatelessWidget {
     );
   }
 
-
   Widget buildTeamMember(String name, String email, String imagePath) {
     return Card(
       elevation: 2,
@@ -115,10 +118,10 @@ class AboutPage extends StatelessWidget {
           backgroundImage: AssetImage(imagePath),
           backgroundColor: Colors.grey[300],
         ),
-        title: Text(name, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+        title: Text(name,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
         subtitle: Text(email, style: TextStyle(color: Colors.blue)),
       ),
     );
   }
-
 }

@@ -1,57 +1,81 @@
 import 'package:flutter/material.dart';
+// Import localization
+import 'package:bio_track/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:bio_track/l10n/language_provider.dart';
 
 class FAQScreen extends StatelessWidget {
+  // Get FAQ items with translations
+  List<FAQSection> getFAQSections(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+
+    return [
+      FAQSection(localizations.translate("general_questions"), [
+        FAQItem(localizations.translate("what_is_biotrack"),
+            localizations.translate("biotrack_description")),
+        FAQItem(localizations.translate("who_can_use"),
+            localizations.translate("who_can_use_answer")),
+      ]),
+      FAQSection(localizations.translate("features"), [
+        FAQItem(localizations.translate("what_vital_signs"),
+            localizations.translate("vital_signs_answer")),
+        FAQItem(localizations.translate("how_measure_glucose"),
+            localizations.translate("glucose_measurement_answer")),
+      ]),
+      FAQSection(localizations.translate("usage"), [
+        FAQItem(localizations.translate("how_setup"),
+            localizations.translate("setup_answer")),
+        FAQItem(localizations.translate("use_without_smartphone"),
+            localizations.translate("without_smartphone_answer")),
+      ]),
+      FAQSection(localizations.translate("troubleshooting"), [
+        FAQItem(localizations.translate("why_inaccurate"),
+            localizations.translate("inaccurate_answer")),
+        FAQItem(localizations.translate("not_connecting"),
+            localizations.translate("not_connecting_answer")),
+      ]),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final isArabic = languageProvider.isArabic;
+    final faqSections = getFAQSections(context);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Frequently Asked Questions",
-        style: TextStyle(color: Colors.white),),
+        title: Text(
+          localizations.translate("faq"),
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Color.fromARGB(255, 3, 131, 194),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            buildFAQSection("General Questions", [
-              FAQItem("What is BioTrack?", "BioTrack is an integrated vital signs monitoring system that measures body composition, heart rate, blood glucose, body temperature, and plantar pressure."),
-              FAQItem("Who can use BioTrack?", "Anyone interested in tracking their health metrics, including fitness enthusiasts, medical patients, and general users."),
-            ]),
-
-            buildFAQSection("Features", [
-              FAQItem("What vital signs does BioTrack monitor?", "BioTrack monitors body composition (InBody metrics), heart rate, blood glucose, body temperature, and plantar pressure."),
-              FAQItem("How does BioTrack measure blood glucose?", "BioTrack uses the MAX30102 sensor to estimate blood glucose levels through non-invasive techniques."),
-            ]),
-
-            buildFAQSection("Usage", [
-              FAQItem("How do I set up BioTrack?", "Simply connect BioTrack to the mobile app, follow the on-screen instructions, and place your hands and feet on the device to start measuring."),
-              FAQItem("Can I use BioTrack without a smartphone?", "BioTrack is designed to work best with the mobile app, but some basic readings may be available on the device's screen."),
-            ]),
-
-            buildFAQSection("Troubleshooting", [
-              FAQItem("Why is my measurement inaccurate?", "Ensure proper contact with sensors, clean the device, and avoid movement during measurement."),
-              FAQItem("What should I do if BioTrack is not connecting to the app?", "Check Bluetooth settings, restart the device, and ensure the app is updated to the latest version."),
-            ]),
-          ],
+          children:
+              faqSections.map((section) => buildFAQSection(section)).toList(),
         ),
       ),
     );
   }
 
   // Widget to build a section of FAQ
-  Widget buildFAQSection(String sectionTitle, List<FAQItem> items) {
+  Widget buildFAQSection(FAQSection section) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          sectionTitle,
+          section.title,
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        Divider(), // خط فاصل بين الأقسام
-        ...items.map((item) => buildFAQItem(item)).toList(),
-        SizedBox(height: 20), // مسافة بين الأقسام
+        Divider(), // Divider between sections
+        ...section.items.map((item) => buildFAQItem(item)).toList(),
+        SizedBox(height: 20), // Space between sections
       ],
     );
   }
@@ -59,15 +83,25 @@ class FAQScreen extends StatelessWidget {
   // Widget to create each FAQ item with an expandable answer
   Widget buildFAQItem(FAQItem item) {
     return ExpansionTile(
-      title: Text(item.question, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+      title: Text(item.question,
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Text(item.answer, style: TextStyle(fontSize: 16, color: Colors.grey[700])),
+          child: Text(item.answer,
+              style: TextStyle(fontSize: 16, color: Colors.grey[700])),
         ),
       ],
     );
   }
+}
+
+// Model to hold FAQ section
+class FAQSection {
+  final String title;
+  final List<FAQItem> items;
+
+  FAQSection(this.title, this.items);
 }
 
 // Model to hold FAQ question and answer

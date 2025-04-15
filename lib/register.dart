@@ -7,6 +7,9 @@ import 'package:bio_track/logInPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:bio_track/services/user_service.dart';
+// Localization imports
+import 'package:bio_track/l10n/app_localizations.dart';
+import 'package:bio_track/l10n/language_provider.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -35,43 +38,44 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   bool _validateForm() {
+    final localizations = AppLocalizations.of(context);
     // Reset error message
     setState(() => _errorMessage = null);
 
     // Check if fields are empty
     if (_nameController.text.trim().isEmpty) {
-      setState(() => _errorMessage = "Please enter your name");
+      setState(() => _errorMessage = localizations.translate("enter_name"));
       return false;
     }
 
     if (_emailController.text.trim().isEmpty) {
-      setState(() => _errorMessage = "Please enter your email");
+      setState(() => _errorMessage = localizations.translate("enter_email"));
       return false;
     }
 
     if (!_isValidEmail(_emailController.text.trim())) {
-      setState(() => _errorMessage = "Please enter a valid email address");
+      setState(() => _errorMessage = localizations.translate("invalid_email"));
       return false;
     }
 
     if (_passwordController.text.isEmpty) {
-      setState(() => _errorMessage = "Please enter a password");
+      setState(() => _errorMessage = localizations.translate("enter_password"));
       return false;
     }
 
     if (_passwordController.text.length < 6) {
-      setState(() => _errorMessage = "Password must be at least 6 characters");
+      setState(() => _errorMessage = localizations.translate("password_short"));
       return false;
     }
 
     if (_passwordController.text != _confirmPasswordController.text) {
-      setState(() => _errorMessage = "Passwords do not match");
+      setState(
+          () => _errorMessage = localizations.translate("password_mismatch"));
       return false;
     }
 
     if (!_agreeToTerms) {
-      setState(() =>
-          _errorMessage = "You must agree to the terms and privacy policy");
+      setState(() => _errorMessage = localizations.translate("agree_terms"));
       return false;
     }
 
@@ -118,15 +122,16 @@ class _RegisterPageState extends State<RegisterPage> {
 
         if (!mounted) return;
 
+        final localizations = AppLocalizations.of(context);
+
         // Show dialog for profile completion
         showDialog(
           context: context,
           barrierDismissible: false,
           builder: (BuildContext dialogContext) {
             return AlertDialog(
-              title: const Text('Account Created Successfully'),
-              content:
-                  const Text('Would you like to complete your profile now?'),
+              title: Text(localizations.translate("account_created")),
+              content: Text(localizations.translate("complete_profile_now")),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -137,13 +142,12 @@ class _RegisterPageState extends State<RegisterPage> {
                       (route) => false,
                     );
                   },
-                  child: const Text('Skip for now'),
+                  child: Text(localizations.translate("skip_for_now")),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF0383C2),
-                    foregroundColor:
-                        Colors.white, // Add this to ensure text is white
+                    foregroundColor: Colors.white,
                     textStyle: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -162,7 +166,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       (route) => false,
                     );
                   },
-                  child: const Text('Complete Profile'),
+                  child: Text(localizations.translate("complete_profile")),
                 ),
               ],
             );
@@ -172,11 +176,13 @@ class _RegisterPageState extends State<RegisterPage> {
     } catch (e) {
       print("Registration error: $e");
 
+      final localizations = AppLocalizations.of(context);
       // Add this critical line to reset loading state on error
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _errorMessage = "Registration failed: ${e.toString()}";
+          _errorMessage =
+              "${localizations.translate("registration_failed")}: ${e.toString()}";
         });
       }
 
@@ -198,9 +204,8 @@ class _RegisterPageState extends State<RegisterPage> {
           barrierDismissible: false,
           builder: (BuildContext dialogContext) {
             return AlertDialog(
-              title: const Text('Account Created Successfully'),
-              content:
-                  const Text('Would you like to complete your profile now?'),
+              title: Text(localizations.translate("account_created")),
+              content: Text(localizations.translate("complete_profile_now")),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -211,13 +216,12 @@ class _RegisterPageState extends State<RegisterPage> {
                       (route) => false,
                     );
                   },
-                  child: const Text('Skip for now'),
+                  child: Text(localizations.translate("skip_for_now")),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF0383C2),
-                    foregroundColor:
-                        Colors.white, // Add this to ensure text is white
+                    foregroundColor: Colors.white,
                     textStyle: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -236,7 +240,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       (route) => false,
                     );
                   },
-                  child: const Text('Complete Profile'),
+                  child: Text(localizations.translate("complete_profile")),
                 ),
               ],
             );
@@ -257,13 +261,17 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final isArabic = languageProvider.isArabic;
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Padding(
         padding: const EdgeInsets.all(0.0),
         child: Column(
           children: [
-            // First section remains unchanged
+            // First section with title
             Flexible(
               flex: 1,
               child: Container(
@@ -274,20 +282,22 @@ class _RegisterPageState extends State<RegisterPage> {
                       bottomRight: Radius.circular(40.0),
                     )),
                 alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.only(left: 20.0),
-                child: const Text.rich(
+                padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                child: Text.rich(
                   TextSpan(
                     children: [
                       TextSpan(
-                        text: "Let's ",
-                        style: TextStyle(
+                        text: isArabic ? "هيا " : "Let's ",
+                        style: const TextStyle(
                           color: Color.fromARGB(255, 255, 255, 255),
                           fontSize: 35.0,
                         ),
                       ),
                       TextSpan(
-                        text: "\nCreate \nYour \nAccount",
-                        style: TextStyle(
+                        text: isArabic
+                            ? "\nننشئ \nحسابك \nالجديد"
+                            : "\nCreate \nYour \nAccount",
+                        style: const TextStyle(
                           color: Color.fromARGB(255, 255, 255, 255),
                           fontSize: 35.0,
                           fontWeight: FontWeight.bold,
@@ -295,6 +305,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ],
                   ),
+                  textAlign: isArabic ? TextAlign.right : TextAlign.left,
                 ),
               ),
             ),
@@ -337,7 +348,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         decoration: InputDecoration(
                           fillColor: const Color.fromARGB(255, 3, 131, 194),
                           iconColor: const Color.fromARGB(255, 3, 131, 194),
-                          labelText: 'Full Name',
+                          labelText: localizations.translate("name"),
                           labelStyle: const TextStyle(
                             color: Color.fromARGB(255, 95, 127, 154),
                           ),
@@ -370,7 +381,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         decoration: InputDecoration(
                           fillColor: const Color.fromARGB(255, 3, 131, 194),
                           iconColor: const Color.fromARGB(255, 3, 131, 194),
-                          labelText: 'Email',
+                          labelText: localizations.translate("email"),
                           labelStyle: const TextStyle(
                             color: Color.fromARGB(255, 95, 127, 154),
                           ),
@@ -402,7 +413,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         decoration: InputDecoration(
                           fillColor: const Color.fromARGB(255, 3, 131, 194),
                           iconColor: const Color.fromARGB(255, 3, 131, 194),
-                          labelText: 'Password',
+                          labelText: localizations.translate("password"),
                           labelStyle: const TextStyle(
                             color: Color.fromARGB(255, 95, 127, 154),
                           ),
@@ -435,12 +446,12 @@ class _RegisterPageState extends State<RegisterPage> {
                         decoration: InputDecoration(
                           fillColor: const Color.fromARGB(255, 3, 131, 194),
                           iconColor: const Color.fromARGB(255, 3, 131, 194),
-                          labelText: 'Retype Password',
+                          labelText:
+                              localizations.translate("confirm_password"),
                           labelStyle: const TextStyle(
                             color: Color.fromARGB(255, 95, 127, 154),
                           ),
-                          prefixIcon: const Icon(
-                              Icons.lock), // Changed from person to lock icon
+                          prefixIcon: const Icon(Icons.lock),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30.0),
                             borderSide: const BorderSide(
@@ -475,10 +486,12 @@ class _RegisterPageState extends State<RegisterPage> {
                             },
                             activeColor: const Color.fromARGB(255, 6, 106, 222),
                           ),
-                          const Text(
-                            'I agree to the Terms & Privacy',
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 70, 108, 139),
+                          Expanded(
+                            child: Text(
+                              localizations.translate("agree_terms_privacy"),
+                              style: const TextStyle(
+                                color: Color.fromARGB(255, 70, 108, 139),
+                              ),
                             ),
                           ),
                         ],
@@ -503,9 +516,9 @@ class _RegisterPageState extends State<RegisterPage> {
                           child: _isLoading
                               ? const CircularProgressIndicator(
                                   color: Colors.white)
-                              : const Text(
-                                  'Sign up',
-                                  style: TextStyle(color: Colors.white),
+                              : Text(
+                                  localizations.translate("sign_up"),
+                                  style: const TextStyle(color: Colors.white),
                                 ),
                         ),
                       ),
@@ -523,9 +536,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                         builder: (context) => HomePage()),
                                   );
                                 },
-                          child: const Text(
-                            'Have an account? Sign In',
-                            style: TextStyle(
+                          child: Text(
+                            localizations.translate("have_account"),
+                            style: const TextStyle(
                               color: Color.fromARGB(255, 70, 108, 139),
                             ),
                           ),
