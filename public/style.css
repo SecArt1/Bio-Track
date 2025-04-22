@@ -1,0 +1,426 @@
+/* filepath: c:\Users\rewmo\Dev\G.P\gp\public\style.css */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+:root {
+    --primary-color: #0383C2; /* App's primary blue */
+    --secondary-color: #026aa7; /* Darker blue for hover/accents */
+    --text-color: #333;
+    --text-light-color: #f8f9fa;
+    --text-secondary-color: #68737D;
+    --background-color: #f8f9fa;
+    --card-background: #ffffff;
+    --footer-background: #e9ecef;
+    --divider-color: #e0e0e0;
+    --success-color: #28a745;
+    --error-color: #dc3545;
+}
+
+/* --- General Styles --- */
+body {
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.7; /* Slightly increased line-height */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-size: 16px; /* Base font size */
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--primary-color);
+    margin-top: 1.5em;
+    margin-bottom: 0.8em;
+    font-weight: 700;
+}
+
+h1 { font-size: 2.8rem; }
+h2 { font-size: 2.2rem; }
+h3 { font-size: 1.8rem; }
+h4 { font-size: 1.4rem; }
+
+p, ul, ol {
+    margin-bottom: 1.2rem;
+}
+
+ul, ol {
+    padding-left: 25px;
+}
+
+a {
+    color: var(--secondary-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* --- Header --- */
+header {
+    background-color: var(--primary-color);
+    color: var(--text-light-color);
+    padding: 1rem 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: sticky; /* Make header sticky */
+    top: 0;
+    z-index: 1000;
+}
+
+header .logo {
+    font-size: 1.8rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: var(--text-light-color);
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+nav ul li {
+    margin-left: 1.5rem;
+}
+
+nav ul li a {
+    color: var(--text-light-color);
+    text-decoration: none;
+    font-size: 1rem;
+    padding: 0.5rem 0;
+    position: relative;
+    transition: opacity 0.3s ease;
+}
+nav ul li a::after { /* Underline effect */
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--text-light-color);
+    transition: width 0.3s ease;
+}
+nav ul li a:hover::after,
+nav ul li a.active::after { /* Style for active link */
+    width: 100%;
+}
+
+nav ul li a:hover {
+    opacity: 0.9;
+    text-decoration: none;
+}
+
+/* --- Main Content --- */
+main {
+    flex-grow: 1;
+    padding: 0; /* Remove padding, apply to sections */
+    width: 100%;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 5%;
+}
+
+.content-card { /* Style for main content areas */
+    background-color: var(--card-background);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    padding: 2rem 2.5rem;
+    margin-bottom: 2rem;
+}
+
+/* --- Sections --- */
+section {
+    padding: 3rem 0; /* Vertical padding for sections */
+}
+section:nth-child(even) { /* Alternate background for visual separation */
+    background-color: #fff;
+}
+
+/* --- Hero Section --- */
+#hero {
+    background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+    color: var(--text-light-color);
+    text-align: center;
+    padding: 5rem 5% 4rem; /* More padding */
+}
+#hero h1 {
+    color: var(--text-light-color);
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    border: none;
+}
+#hero p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* --- App Store Buttons --- */
+.app-stores {
+    margin-top: 1.5rem;
+}
+.app-stores p {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+.app-stores img {
+    height: 55px; /* Slightly larger */
+    margin: 0.5rem;
+    display: inline-block; /* Align side-by-side */
+    transition: transform 0.2s ease;
+}
+.app-stores img:hover {
+    transform: scale(1.05);
+}
+
+/* --- Buttons --- */
+.button {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: var(--text-light-color) !important; /* Ensure text is white */
+    padding: 0.9rem 1.8rem; /* Slightly larger padding */
+    border-radius: 30px; /* More rounded */
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    margin: 0.5rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.button:hover {
+    background-color: var(--secondary-color);
+    text-decoration: none;
+    transform: translateY(-2px); /* Slight lift effect */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+.button-secondary { /* Optional secondary style */
+    background-color: transparent;
+    color: var(--primary-color) !important;
+    border: 2px solid var(--primary-color);
+}
+.button-secondary:hover {
+    background-color: var(--primary-color);
+    color: var(--text-light-color) !important;
+}
+
+
+/* --- Features Section --- */
+#features {
+    text-align: center;
+}
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive grid */
+    gap: 2rem;
+    margin-top: 2rem;
+    text-align: left;
+}
+.feature-item {
+    background-color: var(--card-background);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.feature-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+.feature-item i { /* Style for potential icons */
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    display: block; /* Center icon */
+    text-align: center;
+}
+.feature-item h3 {
+    margin-top: 0;
+    font-size: 1.3rem;
+    text-align: center; /* Center feature title */
+}
+
+/* --- Technology/How it Works Section --- */
+#technology {
+    background-color: #fff; /* White background */
+}
+.tech-split {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    flex-wrap: wrap; /* Wrap on smaller screens */
+}
+.tech-split .text-content {
+    flex: 1;
+    min-width: 300px;
+}
+.tech-split .image-content {
+    flex: 1;
+    min-width: 300px;
+    text-align: center;
+}
+.tech-split img {
+    max-width: 450px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* --- Testimonials Section --- */
+#testimonials {
+    text-align: center;
+}
+.testimonial-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+.testimonial-card {
+    background-color: var(--card-background);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+    text-align: left;
+    border-left: 5px solid var(--primary-color); /* Accent border */
+}
+.testimonial-card p.quote {
+    font-style: italic;
+    margin-bottom: 1rem;
+    color: var(--text-secondary-color);
+}
+.testimonial-card p.author {
+    font-weight: bold;
+    text-align: right;
+    color: var(--primary-color);
+}
+.testimonial-card p.author span {
+    display: block;
+    font-weight: normal;
+    font-size: 0.9rem;
+    color: var(--text-secondary-color);
+}
+
+/* --- FAQ Section --- */
+.faq-item {
+    background-color: var(--card-background);
+    margin-bottom: 1rem;
+    border-radius: 5px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    overflow: hidden; /* Needed for smooth transition */
+}
+.faq-question {
+    padding: 1rem 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--divider-color);
+    transition: background-color 0.3s ease;
+}
+.faq-question:hover {
+    background-color: #f1f1f1;
+}
+.faq-question::after { /* Arrow indicator */
+    content: '+';
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    transition: transform 0.3s ease;
+}
+.faq-item.active .faq-question::after {
+    transform: rotate(45deg);
+}
+.faq-answer {
+    padding: 0 1.5rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+}
+.faq-item.active .faq-answer {
+    padding: 1.5rem;
+    max-height: 500px; /* Adjust as needed */
+}
+
+
+/* --- Footer --- */
+footer {
+    background-color: var(--footer-background);
+    color: var(--text-secondary-color); /* Use secondary text color */
+    text-align: center;
+    padding: 2rem 5%;
+    margin-top: auto; /* Pushes footer to bottom */
+    font-size: 0.95rem;
+}
+footer p {
+    margin-bottom: 0.5rem;
+}
+footer a {
+    color: var(--secondary-color);
+    margin: 0 0.7rem;
+}
+footer a:hover {
+    color: var(--primary-color);
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 992px) {
+    h1 { font-size: 2.5rem; }
+    h2 { font-size: 2rem; }
+    .container { padding: 1.5rem 4%; }
+    .content-card { padding: 1.5rem 2rem; }
+}
+
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        text-align: center;
+        position: static; /* Remove sticky on small screens if needed */
+    }
+    nav ul {
+        margin-top: 1rem;
+        justify-content: center;
+        flex-wrap: wrap; /* Allow nav items to wrap */
+    }
+    nav ul li {
+        margin: 0.3rem 0.8rem;
+    }
+    #hero { padding: 4rem 5% 3rem; }
+    #hero h1 { font-size: 2.2rem; }
+    #hero p { font-size: 1.1rem; }
+    .tech-split { flex-direction: column; }
+    .tech-split .image-content { margin-top: 2rem; }
+    .button { padding: 0.8rem 1.5rem; font-size: 1rem; }
+    .app-stores img { height: 45px; }
+}
+
+@media (max-width: 576px) {
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.8rem; }
+    .container { padding: 1rem 3%; }
+    .content-card { padding: 1rem 1.5rem; }
+    nav ul li { margin: 0.2rem 0.5rem; }
+    nav ul li a { font-size: 0.9rem; }
+}

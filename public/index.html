@@ -1,89 +1,136 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Welcome to Firebase Hosting</title>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioTrack - Monitor Your Health Intuitively</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="/favicon.ico">
+    <!-- Font Awesome for Icons (Optional, replace with SVGs if preferred) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <a href="/" class="logo">BioTrack</a>
+        <nav>
+            <ul>
+                <li><a href="/" class="active">Home</a></li>
+                <li><a href="/features.html">Features</a></li>
+                <li><a href="/technology.html">How It Works</a></li>
+                <li><a href="/faq.html">FAQ</a></li>
+                <li><a href="/privacy.html">Privacy</a></li>
+                <li><a href="/terms.html">Terms</a></li>
+            </ul>
+        </nav>
+    </header>
 
-    <!-- update the version number as needed -->
-    <script defer src="/__/firebase/11.5.0/firebase-app-compat.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/11.5.0/firebase-auth-compat.js"></script>
-    <script defer src="/__/firebase/11.5.0/firebase-database-compat.js"></script>
-    <script defer src="/__/firebase/11.5.0/firebase-firestore-compat.js"></script>
-    <script defer src="/__/firebase/11.5.0/firebase-functions-compat.js"></script>
-    <script defer src="/__/firebase/11.5.0/firebase-messaging-compat.js"></script>
-    <script defer src="/__/firebase/11.5.0/firebase-storage-compat.js"></script>
-    <script defer src="/__/firebase/11.5.0/firebase-analytics-compat.js"></script>
-    <script defer src="/__/firebase/11.5.0/firebase-remote-config-compat.js"></script>
-    <script defer src="/__/firebase/11.5.0/firebase-performance-compat.js"></script>
-    <!-- 
-      initialize the SDK after all desired features are loaded, set useEmulator to false
-      to avoid connecting the SDK to running emulators.
-    -->
-    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+    <main>
+        <!-- Hero Section -->
+        <section id="hero">
+            <h1>Take Control of Your Health with BioTrack</h1>
+            <p>The simple, intuitive way to monitor your vital health metrics like heart rate, blood pressure, weight, and more. Stay informed, stay healthy, right from your pocket.</p>
+            <div class="app-stores">
+                <p>Download the app now:</p>
+                <a href="#" target="_blank" rel="noopener noreferrer"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/2560px-Google_Play_Store_badge_EN.svg.png" alt="Get it on Google Play"></a>
+                <a href="#" target="_blank" rel="noopener noreferrer"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Download_on_the_App_Store_Badge.svg/2560px-Download_on_the_App_Store_Badge.svg.png" alt="Download on the App Store"></a>
+            </div>
+        </section>
 
-    <style media="screen">
-      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
-      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
-      #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
-      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
-      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
-      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
-      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
-      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
-      @media (max-width: 600px) {
-        body, #message { margin-top: 0; background: white; box-shadow: none; }
-        body { border-top: 16px solid #ffa100; }
-      }
-    </style>
-  </head>
-  <body>
-    <div id="message">
-      <h2>Welcome</h2>
-      <h1>Firebase Hosting Setup Complete</h1>
-      <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
-      <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
-    </div>
-    <p id="load">Firebase SDK Loading&hellip;</p>
+        <!-- Features Overview Section -->
+        <section id="features">
+            <div class="container">
+                <h2>Your Health Data, Simplified</h2>
+                <p>BioTrack makes understanding your health easy and accessible.</p>
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <i class="fas fa-heartbeat"></i>
+                        <h3>Comprehensive Tracking</h3>
+                        <p>Log Heart Rate, Blood Pressure (Systolic/Diastolic), Weight, Blood Sugar, and Oxygen Saturation effortlessly.</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>Visualize Trends</h3>
+                        <p>See your progress over time with clear, interactive charts. Filter by week, month, or year.</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h3>Detailed History & Summary</h3>
+                        <p>Access all your past readings in a list view and get insightful summary statistics (average, median, min, max).</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3>Secure & Private</h3>
+                        <p>Your data is securely stored using Firebase and is accessible only by you. We prioritize your privacy.</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-adjust"></i>
+                        <h3>Personalized Experience</h3>
+                        <p>Choose between Light and Dark modes, and use the app in English or Arabic for your comfort.</p>
+                    </div>
+                     <div class="feature-item">
+                        <i class="fas fa-mobile-alt"></i>
+                        <h3>Intuitive Interface</h3>
+                        <p>Designed for ease of use, making health tracking a seamless part of your routine.</p>
+                    </div>
+                </div>
+                <a href="/features.html" class="button" style="margin-top: 2rem;">Learn More About Features</a>
+            </div>
+        </section>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const loadEl = document.querySelector('#load');
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        // // The Firebase SDK is initialized and available here!
-        //
-        // firebase.auth().onAuthStateChanged(user => { });
-        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-        // firebase.firestore().doc('/foo/bar').get().then(() => { });
-        // firebase.functions().httpsCallable('yourFunction')().then(() => { });
-        // firebase.messaging().requestPermission().then(() => { });
-        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
-        // firebase.analytics(); // call to activate
-        // firebase.analytics().logEvent('tutorial_completed');
-        // firebase.performance(); // call to activate
-        //
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+        <!-- How It Works Section -->
+        <section id="technology">
+             <div class="container tech-split">
+                 <div class="text-content">
+                    <h2>Secure, Reliable, Yours</h2>
+                    <p>BioTrack leverages the power and security of Google Firebase to store your health data. When you record a measurement, it's saved directly to your private cloud space, accessible only through your authenticated account.</p>
+                    <ul>
+                        <li><strong>Real-time Sync:</strong> Your data is available across devices (if applicable).</li>
+                        <li><strong>Robust Security:</strong> Built on Google's infrastructure with strong authentication rules.</li>
+                        <li><strong>User Controlled:</strong> You own your data. View, manage, and delete your records anytime.</li>
+                    </ul>
+                    <a href="/technology.html" class="button button-secondary">Explore the Technology</a>
+                 </div>
+                 <div class="image-content">
+                     <!-- Placeholder: Replace with a relevant graphic or screenshot -->
+                     <img src="https://via.placeholder.com/400x300.png?text=Secure+Cloud+Storage" alt="Secure Data Storage Illustration">
+                 </div>
+             </div>
+        </section>
 
-        try {
-          let app = firebase.app();
-          let features = [
-            'auth', 
-            'database', 
-            'firestore',
-            'functions',
-            'messaging', 
-            'storage', 
-            'analytics', 
-            'remoteConfig',
-            'performance',
-          ].filter(feature => typeof app[feature] === 'function');
-          loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
-        } catch (e) {
-          console.error(e);
-          loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
-        }
-      });
-    </script>
-  </body>
+        <!-- Testimonials Section -->
+        <section id="testimonials">
+            <div class="container">
+                <h2>Trusted by Users</h2>
+                <div class="testimonial-grid">
+                    <div class="testimonial-card">
+                        <p class="quote">"BioTrack has made it so much easier to keep track of my blood pressure readings for my doctor. The charts are really helpful!"</p>
+                        <p class="author">- Sarah K. <span>(App User)</span></p>
+                    </div>
+                    <div class="testimonial-card">
+                        <p class="quote">"Finally, a simple app that does exactly what I need without unnecessary complications. Tracking my weight and heart rate is a breeze."</p>
+                        <p class="author">- Ahmed M. <span>(App User)</span></p>
+                    </div>
+                    <div class="testimonial-card">
+                        <p class="quote">"I love the dark mode and the clear summary statistics. It helps me see the bigger picture of my health trends."</p>
+                        <p class="author">- Chloe T. <span>(App User)</span></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2025 BioTrack. All rights reserved.</p>
+        <p>
+            <a href="/privacy.html">Privacy Policy</a> |
+            <a href="/terms.html">Terms of Service</a> |
+            <a href="/faq.html">FAQ</a>
+            <!-- | <a href="mailto:support@biotrack.tech">Contact</a> -->
+        </p>
+    </footer>
+
+    <!-- Optional: Add JS for active nav link highlighting or FAQ toggles -->
+    <script src="script.js"></script>
+</body>
 </html>
