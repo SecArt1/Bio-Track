@@ -1,0 +1,37 @@
+name: Deploy Website to Firebase Hosting
+
+on:
+  push:
+    branches:
+      - main  # Or replace 'main' with the branch you want to deploy from
+    paths:
+      - 'public/**'  # Trigger only if files inside the 'public' directory change
+      - '.github/workflows/firebase-hosting-deploy.yml' # Also trigger if this workflow file changes
+      - 'firebase.json' # Also trigger if firebase config changes
+
+jobs:
+  deploy_hosting:
+    name: Deploy to Firebase Hosting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4 # Checks out your repository code
+
+      # No build step needed as it's a static site (HTML, CSS, JS in /public)
+
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          # GITHUB_TOKEN is automatically provided by GitHub Actions
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          # The secret you created containing the JSON service account key
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_BIO_TRACK_DE846 }}'
+          # Your Firebase project ID
+          projectId: bio-track-de846
+          # Deploy to the 'live' channel (your main site)
+          channelId: live
+          # Optional: Specify a deploy target if you have multiple sites defined in firebase.json
+          # target: your-hosting-target-name
+        env:
+          # Required by the action for non-default channels like 'live'
+          FIREBASE_CLI_PREVIEWS: hostingchannels
