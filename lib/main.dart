@@ -2,24 +2,23 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:bio_track/startScreen.dart';
-import 'package:bio_track/stillStart.dart';
 import 'package:bio_track/LandingPage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:bio_track/logInPage.dart';
 import 'package:bio_track/register.dart';
 import 'package:bio_track/theme_provider.dart';
 import 'package:bio_track/theme_config.dart';
-// Import localization packages
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:bio_track/l10n/app_localizations.dart';
 import 'package:bio_track/l10n/language_provider.dart';
+import 'package:bio_track/Auth/auth_wrapper.dart';
 
 bool ignoreAuthChanges = false;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  print('🔥 Firebase initialized successfully');
   runApp(
     MultiProvider(
       providers: [
@@ -32,62 +31,53 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<ThemeProvider, LanguageProvider>(
-      builder: (context, themeProvider, languageProvider, child) {
-        return MaterialApp(
-          title: 'BioTrack',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.light(context),
-          darkTheme: AppTheme.dark(context),
-          themeMode:
-              themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+    // Access providers for theme and language
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final languageProvider = Provider.of<LanguageProvider>(context);
 
-          // Localization setup
-          locale: languageProvider.currentLocale,
-          supportedLocales: const [
-            Locale('en', ''), // English
-            Locale('ar', ''), // Arabic
-          ],
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          localeResolutionCallback: (locale, supportedLocales) {
-            for (var supportedLocale in supportedLocales) {
-              if (supportedLocale.languageCode == locale?.languageCode) {
-                return supportedLocale;
-              }
-            }
-            // If device language is not supported, use first one from the list (English)
-            return supportedLocales.first;
-          },
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'BioTrack', // Your app title
+      theme: ThemeConfig.lightTheme, // Your light theme config
+      darkTheme: ThemeConfig.darkTheme, // Your dark theme config
+      themeMode: themeProvider.themeMode, // Controlled by ThemeProvider
 
-          // Set text direction based on language
-          builder: (context, child) {
-            return Directionality(
-              textDirection: languageProvider.isArabic
-                  ? TextDirection.rtl
-                  : TextDirection.ltr,
-              child: child!,
-            );
-          },
-          home: StartScreen(), // Set StartScreen as the initial screen
-        );
+      // Localization settings
+      locale: languageProvider.currentLocale,
+      supportedLocales: const [
+        Locale('en', ''), // English, no country code
+        Locale('ar', ''), // Arabic, no country code
+      ],
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      localeResolutionCallback: (locale, supportedLocales) {
+        for (var supportedLocale in supportedLocales) {
+          if (supportedLocale.languageCode == locale?.languageCode) {
+            return supportedLocale;
+          }
+        }
+        // Default to English if locale is not supported
+        return supportedLocales.first;
       },
-    );
-  }
-}
 
-class AuthenticationWrapper extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    // Disable auto-navigation based on auth state
-    return HomePage();
+      // Use AuthWrapper as the home widget
+      home: const AuthWrapper(),
+
+      // Define routes if you use named navigation
+      // routes: {
+      //   '/login': (context) => const HomePage(),
+      //   '/register': (context) => const Register(),
+      //   '/landing': (context) => const LandingPage(),
+      //   // Add other routes...
+      // },
+    );
   }
 }

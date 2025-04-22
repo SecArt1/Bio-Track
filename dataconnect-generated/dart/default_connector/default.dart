@@ -1,4 +1,4 @@
-library default_connector;
+library;
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -22,12 +22,9 @@ class DefaultConnector {
 
   // Factory constructor to get the singleton instance
   static DefaultConnector get instance {
-    if (_instance == null) {
-      // Initialize with standard Firebase instances
-      _instance = DefaultConnector._(
+    _instance ??= DefaultConnector._(
         firestore: FirebaseFirestore.instance,
       );
-    }
     return _instance!;
   }
 

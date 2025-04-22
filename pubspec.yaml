@@ -47,7 +47,7 @@ dependencies:
   
   # Your existing dependencies
   animated_text_kit: ^4.2.2
-  fl_chart: ^0.69.2
+  fl_chart: ^0.63.0
   syncfusion_flutter_charts: ^28.2.12
 
   # The following adds the Cupertino Icons font to your application.
@@ -55,6 +55,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   google_fonts: ^6.2.1
   shared_preferences: ^2.1.0
+  flutter_svg: ^2.0.7
 
 dev_dependencies:
   flutter_test:

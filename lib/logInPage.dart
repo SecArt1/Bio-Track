@@ -10,6 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 // Localization imports
 import 'package:bio_track/l10n/app_localizations.dart';
 import 'package:bio_track/l10n/language_provider.dart';
+import 'package:bio_track/Auth/auth_wrapper.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

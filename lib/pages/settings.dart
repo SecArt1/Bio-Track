@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:bio_track/pages/faq.dart';
+import 'package:bio_track/pages/about.dart'; // Import about.dart
 import 'package:bio_track/forgotPassword.dart';
 import 'package:bio_track/logInPage.dart';
 import 'package:provider/provider.dart';
 import 'package:bio_track/theme_provider.dart';
 import 'package:bio_track/l10n/app_localizations.dart';
 import 'package:bio_track/l10n/language_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override
@@ -14,6 +17,59 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool isNotificationsEnabled = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotificationPreference();
+  }
+
+  // Load saved notification preference
+  Future<void> _loadNotificationPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isNotificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
+    });
+  }
+
+  // Save notification preference
+  Future<void> _saveNotificationPreference(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('notifications_enabled', value);
+
+    // Here you would also implement any platform-specific notification handling
+    if (value) {
+      _enableNotifications();
+    } else {
+      _disableNotifications();
+    }
+  }
+
+  // Enable notifications
+  void _enableNotifications() {
+    // Implementation for enabling push notifications would go here
+    // This might involve Firebase Messaging or another notification service
+    print('Notifications enabled');
+  }
+
+  // Disable notifications
+  void _disableNotifications() {
+    // Implementation for disabling push notifications would go here
+    print('Notifications disabled');
+  }
+
+  // Handle logout
+  Future<void> _handleLogout() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => HomePage()));
+    } catch (e) {
+      print('Error during logout: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Logout failed. Please try again.')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -122,6 +178,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   setState(() {
                     isNotificationsEnabled = value;
                   });
+                  _saveNotificationPreference(value);
                 },
               ),
               SwitchListTile(
@@ -171,7 +228,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 trailing: Icon(Icons.arrow_forward_ios,
                     size: 18, color: theme.iconTheme.color),
-                onTap: () {},
+                onTap: () {
+                  // Navigate to About page
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => AboutPage()));
+                },
               ),
               SizedBox(height: 40),
               Center(
@@ -184,10 +245,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
-                  onPressed: () {
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => HomePage()));
-                  },
+                  onPressed: _handleLogout,
                   child: Text(localizations.translate("logout"),
                       style: TextStyle(fontSize: 16)),
                 ),

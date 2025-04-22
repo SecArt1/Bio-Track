@@ -13,7 +13,7 @@ import 'package:bio_track/pages/settings.dart';
 import 'package:bio_track/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:bio_track/l10n/language_provider.dart';
-
+import 'package:bio_track/pages/previous_results.dart';
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
 
@@ -371,7 +371,12 @@ class _LandingPageState extends State<LandingPage> {
                             width: 2),
                       ),
                       onPressed: () {
-                        print("Previous Result Pressed");
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const PreviousResultsPage(),
+                          ),
+                        );
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
