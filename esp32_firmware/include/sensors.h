@@ -12,6 +12,7 @@
 #include "spo2_algorithm.h"
 #include "BIA_Application.h"
 #include "blood_pressure.h"  // Add blood pressure monitor
+#include "body_composition.h"  // Add body composition analysis
 #include "config.h"
 
 // Sensor data structures
@@ -72,6 +73,7 @@ struct SensorReadings {
     ECGData ecg;
     GlucoseData glucose;
     BloodPressureData bloodPressure;  // Add blood pressure data
+    BodyComposition bodyComposition;  // Add body composition analysis
     unsigned long systemTimestamp;
 };
 
@@ -81,9 +83,9 @@ private:    // Sensor objects
     MAX30105 glucoseSensor;     // Second MAX30105 for glucose monitoring
     OneWire oneWire;
     DallasTemperature temperatureSensor;
-    HX711 loadCell;
-    BIAApplication biaApp;  // Add BIA Application
+    HX711 loadCell;    BIAApplication biaApp;  // Add BIA Application
     BloodPressureMonitor bpMonitor;  // Add blood pressure monitor
+    BodyCompositionAnalyzer bodyCompositionAnalyzer;  // Add body composition analyzer
     
     // Data buffers
     uint32_t irBuffer[100];
@@ -160,6 +162,7 @@ public:
     bool calibrateBioimpedance(float knownResistance = 1000.0f);  // Add BIA calibration
     bool calibrateBloodPressure(float systolic, float diastolic);  // Add BP calibration
     void setUserProfile(int age, float height, bool isMale);  // Add user profile for BP
+    void setBodyCompositionProfile(const UserProfile& profile);  // Add body composition profile
     void setTemperatureOffset(float offset);  // Add temperature calibration method
     float getTemperatureOffset();  // Get current temperature offset
     
@@ -169,6 +172,7 @@ public:
     TemperatureData getTemperature();
     WeightData getWeight();
     BioimpedanceData getBioimpedance();
+    BodyComposition getBodyComposition(float currentWeight = 0);  // Add body composition analysis
     ECGData getECG();
     GlucoseData getGlucose();
     BloodPressureData getBloodPressure();  // Add BP getter method
@@ -189,9 +193,12 @@ public:
     // Utility methods
     String getSensorStatus();
     void printSensorReadings(const SensorReadings& readings);
-    
-    // DS18B20 specific test and debug methods
+      // DS18B20 specific test and debug methods
     void testDS18B20();  // Standalone DS18B20 test function
+    
+    // AD8232 ECG specific test and monitoring methods
+    void testAD8232ECG();  // Individual ECG test for heart rate diagram
+    void runECGMonitor();  // Real-time ECG waveform monitor
 };
 
 // Global utility function

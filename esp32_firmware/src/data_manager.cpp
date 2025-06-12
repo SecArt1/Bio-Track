@@ -7,11 +7,13 @@ DataManager::DataManager() {
         dataBuffer[i].systemTimestamp = 0;
         dataBuffer[i].heartRate = {0, 0, false, 0};
         dataBuffer[i].temperature = {0, false, 0};
-        dataBuffer[i].weight = {0, false, false, 0};
-        dataBuffer[i].bioimpedance = {0, 0, 0, 0, 0, false, 0};
+        dataBuffer[i].weight = {0, false, false, 0};        dataBuffer[i].bioimpedance = {0, 0, 0, 0, 0, false, 0};
         dataBuffer[i].ecg = {0, 0, 0, false, false, 0};
         dataBuffer[i].glucose = {0, 0, 0, 0, 0, false, false, 0};
         dataBuffer[i].bloodPressure = {0, 0, 0, 0, 0, 0, false, true, 0, 0, 0, false};
+        dataBuffer[i].bodyComposition = {}; // Initialize body composition
+        dataBuffer[i].bodyComposition.timestamp = 0;
+        dataBuffer[i].bodyComposition.validReading = false;
         
         // Initialize alertBuffer entries
         alertBuffer[i].alertType = "";
@@ -105,17 +107,78 @@ String DataManager::formatSensorDataJSON(const SensorReadings& data) {
         weight["timestamp"] = data.weight.timestamp;
         weight["valid"] = true;
     }
-    
-    // Bioimpedance data
+      // Bioimpedance data
     if (data.bioimpedance.validReading) {
         JsonObject bio = doc.createNestedObject("bioimpedance");
         bio["impedance"] = data.bioimpedance.impedance;
         bio["resistance"] = data.bioimpedance.resistance;
         bio["reactance"] = data.bioimpedance.reactance;
         bio["phase"] = data.bioimpedance.phase;
+        bio["frequency"] = data.bioimpedance.frequency;
         bio["unit"] = "ohms";
         bio["timestamp"] = data.bioimpedance.timestamp;
         bio["valid"] = true;
+    }
+    
+    // ECG data
+    if (data.ecg.validReading) {
+        JsonObject ecg = doc.createNestedObject("ecg");
+        ecg["avgFilteredValue"] = data.ecg.avgFilteredValue;
+        ecg["avgBPM"] = data.ecg.avgBPM;
+        ecg["peakCount"] = data.ecg.peakCount;
+        ecg["leadOff"] = data.ecg.leadOff;
+        ecg["timestamp"] = data.ecg.timestamp;
+        ecg["valid"] = true;
+    }
+    
+    // Glucose data
+    if (data.glucose.validReading) {
+        JsonObject glucose = doc.createNestedObject("glucose");
+        glucose["glucoseLevel"] = data.glucose.glucoseLevel;
+        glucose["irValue"] = data.glucose.irValue;
+        glucose["redValue"] = data.glucose.redValue;
+        glucose["ratio"] = data.glucose.ratio;
+        glucose["signalQuality"] = data.glucose.signalQuality;
+        glucose["stable"] = data.glucose.stable;
+        glucose["unit"] = "mg/dL";
+        glucose["timestamp"] = data.glucose.timestamp;
+        glucose["valid"] = true;
+    }
+      // Blood Pressure data
+    if (data.bloodPressure.validReading) {
+        JsonObject bp = doc.createNestedObject("bloodPressure");
+        bp["systolic"] = data.bloodPressure.systolic;
+        bp["diastolic"] = data.bloodPressure.diastolic;
+        bp["PTT"] = data.bloodPressure.pulseTransitTime;
+        bp["PWV"] = data.bloodPressure.pulseWaveVelocity;
+        bp["HRV"] = data.bloodPressure.heartRateVariability;
+        bp["signalQuality"] = data.bloodPressure.signalQuality;
+        bp["correlationCoeff"] = data.bloodPressure.correlationCoeff;
+        bp["unit"] = "mmHg";
+        bp["timestamp"] = data.bloodPressure.timestamp;
+        bp["valid"] = true;
+    }
+    
+    // Body Composition data
+    if (data.bodyComposition.validReading) {
+        JsonObject bc = doc.createNestedObject("bodyComposition");
+        bc["bodyFatPercentage"] = data.bodyComposition.bodyFatPercentage;
+        bc["muscleMassKg"] = data.bodyComposition.muscleMassKg;
+        bc["fatMassKg"] = data.bodyComposition.fatMassKg;
+        bc["fatFreeMass"] = data.bodyComposition.fatFreeMass;
+        bc["bodyWaterPercentage"] = data.bodyComposition.bodyWaterPercentage;
+        bc["visceralFatLevel"] = data.bodyComposition.visceralFatLevel;
+        bc["boneMassKg"] = data.bodyComposition.boneMassKg;
+        bc["metabolicAge"] = data.bodyComposition.metabolicAge;
+        bc["BMR"] = data.bodyComposition.BMR;
+        bc["muscleMassPercentage"] = data.bodyComposition.muscleMassPercentage;
+        bc["measurementQuality"] = data.bodyComposition.measurementQuality;
+        bc["phaseAngle"] = data.bodyComposition.phaseAngle;
+        bc["resistance50kHz"] = data.bodyComposition.resistance50kHz;
+        bc["reactance50kHz"] = data.bodyComposition.reactance50kHz;
+        bc["impedance50kHz"] = data.bodyComposition.impedance50kHz;
+        bc["timestamp"] = data.bodyComposition.timestamp;
+        bc["valid"] = true;
     }
     
     String output;
@@ -252,7 +315,10 @@ bool DataManager::isValidReading(const SensorReadings& data) {
     return data.heartRate.validReading || 
            data.temperature.validReading || 
            data.weight.validReading || 
-           data.bioimpedance.validReading;
+           data.bioimpedance.validReading ||
+           data.ecg.validReading ||
+           data.glucose.validReading ||
+           data.bloodPressure.validReading;
 }
 
 bool DataManager::hasUnacknowledgedAlerts() {
@@ -393,8 +459,7 @@ SensorReadings DataManager::getLatestReading() {
         return dataBuffer[currentBufferIndex - 1];
     }
       // Return empty reading if no data available
-    SensorReadings emptyReading;
-    emptyReading.systemTimestamp = 0;
+    SensorReadings emptyReading;    emptyReading.systemTimestamp = 0;
     emptyReading.heartRate = {0, 0, false, 0};
     emptyReading.temperature = {0, false, 0};
     emptyReading.weight = {0, false, false, 0};
@@ -402,6 +467,9 @@ SensorReadings DataManager::getLatestReading() {
     emptyReading.ecg = {0, 0, 0, false, false, 0};
     emptyReading.glucose = {0, 0, 0, 0, 0, false, false, 0};
     emptyReading.bloodPressure = {0, 0, 0, 0, 0, 0, false, true, 0, 0, 0, false};
+    emptyReading.bodyComposition = {}; // Initialize empty body composition
+    emptyReading.bodyComposition.timestamp = 0;
+    emptyReading.bodyComposition.validReading = false;
     
     return emptyReading;
 }

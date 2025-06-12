@@ -262,6 +262,17 @@ SensorReadings SensorManager::readAllSensors() {
     readings.glucose = readGlucose();
     readings.bloodPressure = readBloodPressure();  // Add BP reading
     
+    // Perform body composition analysis if bioimpedance and weight are available
+    if (readings.bioimpedance.validReading) {
+        float weight = readings.weight.validReading ? readings.weight.weight : 0;
+        readings.bodyComposition = getBodyComposition(weight);
+    } else {
+        // Initialize empty body composition data
+        readings.bodyComposition = {};
+        readings.bodyComposition.timestamp = millis();
+        readings.bodyComposition.validReading = false;
+    }
+    
     return readings;
 }
 
@@ -632,6 +643,27 @@ void SensorManager::setUserProfile(int age, float height, bool isMale) {
         Serial.printf("👤 User profile updated: Age=%d, Height=%.1fcm, Gender=%s\n",
                       age, height, isMale ? "Male" : "Female");
     }
+    
+    // Also update body composition analyzer profile
+    UserProfile profile;
+    profile.age = age;
+    profile.height = height;
+    profile.weight = 70.0f; // Default weight, will be updated during measurements
+    profile.isMale = isMale;
+    profile.activityLevel = 3; // Default moderate activity
+    profile.isAthlete = false;
+    
+    bodyCompositionAnalyzer.setUserProfile(profile);
+    Serial.println("✅ Body composition profile updated");
+}
+
+void SensorManager::setBodyCompositionProfile(const UserProfile& profile) {
+    bodyCompositionAnalyzer.setUserProfile(profile);
+    Serial.printf("👤 Body composition profile set: Age=%d, Height=%.1fcm, Weight=%.1fkg\n",
+                  profile.age, profile.height, profile.weight);
+    Serial.printf("   Gender=%s, Activity=%d, Athlete=%s\n",
+                  profile.isMale ? "Male" : "Female", profile.activityLevel,
+                  profile.isAthlete ? "Yes" : "No");
 }
 
 // Validation functions
@@ -799,6 +831,29 @@ void displaySensorReadings(const SensorReadings& readings) {
         Serial.println("Blood Pressure: Invalid reading");
     }
     
+    // Body Composition Display
+    if (readings.bodyComposition.validReading) {
+        Serial.printf("Body Composition (Quality: %.1f%%):\n", readings.bodyComposition.measurementQuality);
+        Serial.printf("  Body Fat: %.1f%%, Muscle Mass: %.1fkg (%.1f%%)\n",
+                     readings.bodyComposition.bodyFatPercentage, 
+                     readings.bodyComposition.muscleMassKg,
+                     readings.bodyComposition.muscleMassPercentage);
+        Serial.printf("  Body Water: %.1f%%, Fat Mass: %.1fkg\n",
+                     readings.bodyComposition.bodyWaterPercentage,
+                     readings.bodyComposition.fatMassKg);
+        Serial.printf("  BMR: %.0f kcal/day, Metabolic Age: %.1f years\n",
+                     readings.bodyComposition.BMR,
+                     readings.bodyComposition.metabolicAge);
+        Serial.printf("  Visceral Fat: %.1f, Bone Mass: %.1fkg\n",
+                     readings.bodyComposition.visceralFatLevel,
+                     readings.bodyComposition.boneMassKg);
+        Serial.printf("  Phase Angle: %.1f°, Impedance@50kHz: %.1fΩ\n",
+                     readings.bodyComposition.phaseAngle,
+                     readings.bodyComposition.impedance50kHz);
+    } else {
+        Serial.println("Body Composition: Invalid or unavailable");
+    }
+    
     Serial.println("=======================");
 }
 
@@ -855,4 +910,324 @@ void SensorManager::setTemperatureOffset(float offset) {
 
 float SensorManager::getTemperatureOffset() {
     return temperatureOffset;
+}
+
+// Wrapper methods for individual test functions
+HeartRateData SensorManager::readHeartRate() {
+    return readHeartRateAndSpO2();
+}
+
+TemperatureData SensorManager::getTemperature() {
+    return readTemperature();
+}
+
+WeightData SensorManager::getWeight() {
+    return readWeight();
+}
+
+BioimpedanceData SensorManager::getBioimpedance() {
+    return readBioimpedance();
+}
+
+ECGData SensorManager::getECG() {
+    return readECG();
+}
+
+void SensorManager::tareWeight() {
+    if (weightInitialized) {
+        loadCell.tare();
+        Serial.println("⚖️ Weight sensor tared");
+    } else {
+        Serial.println("❌ Weight sensor not initialized");
+    }
+}
+
+// Individual AD8232 ECG test for heart rate diagram
+void SensorManager::testAD8232ECG() {
+    Serial.println("🫀 AD8232 ECG Individual Test - Heart Rate Diagram");
+    Serial.println("=================================================");
+    
+    if (!ecgInitialized) {
+        Serial.println("❌ ECG sensor not initialized");
+        return;
+    }
+    
+    Serial.println("📊 Real-time ECG readings for heart rate analysis");
+    Serial.println("💡 Press any key to stop the test");
+    Serial.println("📈 Format: Timestamp(ms), RawValue, FilteredValue, BPM, LeadOff");
+    Serial.println("-------------------------------------------------");
+    
+    // Reset ECG analysis variables
+    for (int i = 0; i < ECG_FILTER_SIZE; i++) {
+        ecgBuffer[i] = 0;
+    }
+    ecgBufferIndex = 0;
+    lastPeakTime = 0;
+    currentBPM = 0;
+    
+    // Peak detection variables
+    bool peakDetected = false;
+    int lastFilteredValue = 0;
+    int peakCount = 0;
+    unsigned long testStartTime = millis();
+    unsigned long lastDisplayTime = 0;
+    
+    // Running averages for heart rate calculation
+    float bpmReadings[10] = {0};
+    int bpmIndex = 0;
+    
+    while (true) {
+        // Check if user wants to stop
+        if (Serial.available()) {
+            Serial.read(); // Clear buffer
+            break;
+        }
+        
+        unsigned long currentTime = millis();
+        int rawValue = 0;
+        int filteredValue = 0;
+        bool leadOff = false;
+        
+        // Check for lead-off detection
+        if (digitalRead(LO_PLUS_PIN) == 1 || digitalRead(LO_MINUS_PIN) == 1) {
+            leadOff = true;
+            filteredValue = 0;
+            rawValue = 0;
+        } else {
+            // Read raw ECG value
+            rawValue = analogRead(ECG_PIN);
+            
+            // Update circular buffer for filtering
+            ecgBuffer[ecgBufferIndex] = rawValue;
+            ecgBufferIndex = (ecgBufferIndex + 1) % ECG_FILTER_SIZE;
+            
+            // Calculate filtered value (moving average)
+            int sum = 0;
+            for (int i = 0; i < ECG_FILTER_SIZE; i++) {
+                sum += ecgBuffer[i];
+            }
+            filteredValue = sum / ECG_FILTER_SIZE;
+            
+            // Peak detection for heart rate calculation
+            // Look for rising edge crossing threshold
+            if (filteredValue > ecgThreshold && !peakDetected && filteredValue > lastFilteredValue) {
+                peakDetected = true;
+                unsigned long interval = currentTime - lastPeakTime;
+                
+                // Ensure minimum interval between peaks (300ms = 200 BPM max)
+                if (interval > 300 && lastPeakTime > 0) {
+                    float instantBPM = 60000.0 / interval;
+                    
+                    // Validate BPM range
+                    if (instantBPM >= 30 && instantBPM <= 200) {
+                        // Add to running average
+                        bpmReadings[bpmIndex] = instantBPM;
+                        bpmIndex = (bpmIndex + 1) % 10;
+                        
+                        // Calculate average BPM
+                        float sumBPM = 0;
+                        int validReadings = 0;
+                        for (int i = 0; i < 10; i++) {
+                            if (bpmReadings[i] > 0) {
+                                sumBPM += bpmReadings[i];
+                                validReadings++;
+                            }
+                        }
+                        
+                        if (validReadings > 0) {
+                            currentBPM = sumBPM / validReadings;
+                        }
+                        
+                        peakCount++;
+                    }
+                }
+                lastPeakTime = currentTime;
+            } else if (filteredValue < ecgThreshold - 50) { // Hysteresis
+                peakDetected = false;
+            }
+            
+            lastFilteredValue = filteredValue;
+        }
+        
+        // Display data every 50ms for real-time monitoring
+        if (currentTime - lastDisplayTime >= 50) {
+            // Output format: Timestamp, Raw, Filtered, BPM, LeadOff, PeakDetected
+            Serial.printf("%lu,%d,%d,%.1f,%d,%d\n", 
+                         currentTime - testStartTime,
+                         rawValue,
+                         filteredValue,
+                         currentBPM,
+                         leadOff ? 1 : 0,
+                         peakDetected ? 1 : 0);
+            
+            lastDisplayTime = currentTime;
+        }
+        
+        // Show status every 5 seconds
+        if ((currentTime - testStartTime) % 5000 < 50) {
+            Serial.printf("# Status: BPM=%.1f, Peaks=%d, Time=%lus, LeadOff=%s\n",
+                         currentBPM, peakCount, (currentTime - testStartTime) / 1000,
+                         leadOff ? "YES" : "NO");
+        }
+        
+        delay(20); // 50Hz sampling rate
+    }
+    
+    unsigned long totalTime = millis() - testStartTime;
+    
+    Serial.println("-------------------------------------------------");
+    Serial.println("📊 ECG Test Summary:");
+    Serial.printf("⏱️  Test Duration: %.2f seconds\n", totalTime / 1000.0);
+    Serial.printf("💓 Final Heart Rate: %.1f BPM\n", currentBPM);
+    Serial.printf("📈 Total Peaks Detected: %d\n", peakCount);
+    Serial.printf("📊 Average Peak Interval: %.1f ms\n", 
+                 peakCount > 1 ? (float)totalTime / (peakCount - 1) : 0);
+    
+    // Heart rate analysis
+    if (currentBPM > 0) {
+        String hrCategory;
+        if (currentBPM < 60) hrCategory = "Bradycardia (Slow)";
+        else if (currentBPM > 100) hrCategory = "Tachycardia (Fast)";
+        else hrCategory = "Normal";
+        
+        Serial.printf("🫀 Heart Rate Category: %s\n", hrCategory.c_str());
+    }
+    
+    Serial.println("=================================================");
+    Serial.println("✅ AD8232 ECG test completed");
+}
+
+// Individual real-time ECG monitor (continuous display)
+void SensorManager::runECGMonitor() {
+    Serial.println("🫀 AD8232 Real-Time ECG Monitor");
+    Serial.println("==============================");
+    
+    if (!ecgInitialized) {
+        Serial.println("❌ ECG sensor not initialized");
+        return;
+    }
+    
+    Serial.println("📊 Real-time ECG waveform display");
+    Serial.println("💡 Press any key to stop monitoring");
+    Serial.println("📈 Visual representation of ECG signal:");
+    Serial.println("");
+    
+    // Display settings
+    const int displayWidth = 60;
+    const int baselinePos = displayWidth / 2;
+    
+    while (true) {
+        if (Serial.available()) {
+            Serial.read();
+            break;
+        }
+        
+        // Read ECG value
+        bool leadOff = (digitalRead(LO_PLUS_PIN) == 1 || digitalRead(LO_MINUS_PIN) == 1);
+        
+        if (leadOff) {
+            Serial.println("❌ LEAD OFF - Check electrode connections");
+        } else {
+            int rawValue = analogRead(ECG_PIN);
+            
+            // Update filter buffer
+            ecgBuffer[ecgBufferIndex] = rawValue;
+            ecgBufferIndex = (ecgBufferIndex + 1) % ECG_FILTER_SIZE;
+            
+            // Calculate filtered value
+            int sum = 0;
+            for (int i = 0; i < ECG_FILTER_SIZE; i++) {
+                sum += ecgBuffer[i];
+            }
+            int filteredValue = sum / ECG_FILTER_SIZE;
+            
+            // Scale value for display (assuming 12-bit ADC, 0-4095 range)
+            int scaledValue = map(filteredValue, 1500, 2500, 0, displayWidth);
+            scaledValue = constrain(scaledValue, 0, displayWidth - 1);
+            
+            // Create visual waveform
+            String waveform = "";
+            for (int i = 0; i < displayWidth; i++) {
+                if (i == scaledValue) {
+                    waveform += "█";
+                } else if (i == baselinePos) {
+                    waveform += "─";
+                } else {
+                    waveform += " ";
+                }
+            }
+            
+            Serial.printf("%s %d\n", waveform.c_str(), filteredValue);
+        }
+        
+        delay(100); // 10Hz display update
+    }
+    
+    Serial.println("==============================");
+    Serial.println("✅ ECG monitoring stopped");
+}
+
+BodyComposition SensorManager::getBodyComposition(float currentWeight) {
+    BodyComposition composition = {};
+    composition.timestamp = millis();
+    composition.validReading = false;
+    
+    if (!bioimpedanceInitialized) {
+        Serial.println("⚡ Bioimpedance sensor not initialized for body composition");
+        return composition;
+    }
+    
+    // Perform multi-frequency BIA sweep for accurate body composition
+    const int maxResults = 10;
+    BIAResult results[maxResults];
+    unsigned int resultCount = 0;
+    
+    // Perform frequency sweep: 1kHz, 5kHz, 10kHz, 50kHz, 100kHz
+    float frequencies[] = {1000.0f, 5000.0f, 10000.0f, 50000.0f, 100000.0f};
+    int numFreq = sizeof(frequencies) / sizeof(frequencies[0]);
+    
+    Serial.println("🔄 Performing BIA frequency sweep for body composition...");
+    
+    for (int i = 0; i < numFreq && resultCount < maxResults; i++) {
+        BIAResult result;
+        if (biaApp.performSingleMeasurement(frequencies[i], result)) {
+            if (result.Valid && result.Resistance > 10 && result.Resistance < 2000) {
+                results[resultCount] = result;
+                resultCount++;
+                Serial.printf("   %.0fHz: R=%.1fΩ, X=%.1fΩ, Z=%.1fΩ\n", 
+                             frequencies[i], result.Resistance, result.Reactance, result.Magnitude);
+            }
+        }
+        delay(100); // Brief delay between measurements
+    }
+    
+    if (resultCount == 0) {
+        Serial.println("❌ No valid BIA measurements for body composition analysis");
+        return composition;
+    }
+    
+    // Use current weight if provided, otherwise try to get it from weight sensor
+    if (currentWeight <= 0 && weightInitialized) {
+        WeightData weightData = readWeight();
+        if (weightData.validReading && weightData.stable) {
+            currentWeight = weightData.weight;
+        }
+    }
+    
+    // Perform body composition analysis
+    composition = bodyCompositionAnalyzer.analyzeBodyComposition(results, resultCount, currentWeight);
+    
+    if (composition.validReading) {
+        Serial.println("✅ Body composition analysis completed");
+        Serial.printf("📊 Results: BF=%.1f%%, Muscle=%.1fkg, Water=%.1f%%, BMR=%.0fkcal/day\n",
+                     composition.bodyFatPercentage, composition.muscleMassKg, 
+                     composition.bodyWaterPercentage, composition.BMR);
+        Serial.printf("📈 Quality: %.1f%%, Phase Angle: %.1f°\n", 
+                     composition.measurementQuality, composition.phaseAngle);
+    } else {
+        Serial.println("⚠️ Body composition analysis completed with low confidence");
+        Serial.println("   Ensure proper electrode placement and stable contact");
+    }
+    
+    return composition;
 }

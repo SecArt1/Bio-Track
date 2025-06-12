@@ -256,7 +256,7 @@
  .pio/libdeps/esp32dev/SparkFun\ MAX3010x\ Pulse\ and\ Proximity\ Sensor\ Library/src/heartRate.h \
  .pio/libdeps/esp32dev/SparkFun\ MAX3010x\ Pulse\ and\ Proximity\ Sensor\ Library/src/spo2_algorithm.h \
  include/BIA_Application.h include/AD5940.h include/blood_pressure.h \
- include/config.h include/secure_network.h \
+ include/body_composition.h include/config.h include/secure_network.h \
  C:/Users/rewmo/.platformio/packages/framework-arduinoespressif32/libraries/HTTPClient/src/HTTPClient.h \
  C:/Users/rewmo/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiClient.h \
  C:/Users/rewmo/.platformio/packages/framework-arduinoespressif32/libraries/Preferences/src/Preferences.h \

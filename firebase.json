@@ -4,10 +4,6 @@
       "dataDir": "dataconnect/.dataconnect/pgliteData",
       "port": 9399
     },
-    "apphosting": {
-      "port": 5002,
-      "rootDirectory": "./"
-    },
     "auth": {
       "port": 9099
     },
@@ -19,9 +15,6 @@
     },
     "database": {
       "port": 9000
-    },
-    "hosting": {
-      "port": 5000
     },
     "pubsub": {
       "port": 8085
@@ -63,14 +56,7 @@
       ]
     }
   ],
-  "hosting": {
-    "public": "public",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ]
-  },
+
   "storage": {
     "rules": "storage.rules"
   },
