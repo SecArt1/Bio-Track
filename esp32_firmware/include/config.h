@@ -40,35 +40,39 @@
 #define FIRMWARE_VERSION "1.0.0"
 #define LED_BUILTIN 2  // ESP32 built-in LED pin
 
-// Sensor Pin Definitions
+// Sensor Pin Definitions - ESP32 WROOM-32 Optimized
 // MAX30102 Heart Rate & SpO2 (I2C Bus 0)
-#define MAX30102_SDA_PIN 21
-#define MAX30102_SCL_PIN 22
+#define MAX30102_SDA_PIN 21      // I2C0 SDA (default)
+#define MAX30102_SCL_PIN 22      // I2C0 SCL (default)
 
 // MAX30102 Glucose Monitor (I2C Bus 1) 
-#define GLUCOSE_SDA_PIN 16
-#define GLUCOSE_SCL_PIN 17
+#define GLUCOSE_SDA_PIN 13       // GPIO13 (WROOM-32 safe)
+#define GLUCOSE_SCL_PIN 14       // GPIO14 (WROOM-32 safe)
 
 // DS18B20 Temperature (OneWire)
-#define DS18B20_PIN 15  // Updated to match user's configuration
-#define ONE_WIRE_BUS DS18B20_PIN  // Alias for compatibility
+#define DS18B20_PIN 4            // GPIO4 (WROOM-32 safe)
+#define ONE_WIRE_BUS DS18B20_PIN
 
 // HX711 Load Cell (Digital)
-#define LOAD_CELL_DOUT_PIN 5
-#define LOAD_CELL_SCK_PIN 18
+#define LOAD_CELL_DOUT_PIN 16    // GPIO16 (WROOM-32 safe)
+#define LOAD_CELL_SCK_PIN 17     // GPIO17 (WROOM-32 safe)
 
-// AD5941 Bioimpedance (SPI) - Updated to avoid pin conflict with DS18B20
-#define AD5941_CS_PIN 26    // Changed from 15 to avoid conflict with DS18B20
-#define AD5941_MOSI_PIN 23
-#define AD5941_MISO_PIN 19
-#define AD5941_SCK_PIN 14  // Changed from 18 to avoid conflict
-#define AD5941_RESET_PIN 2
-#define AD5941_INT_PIN 27
+// AD5941 Bioimpedance (SPI)
+#define AD5941_CS_PIN 5          // GPIO5 (WROOM-32 safe)
+#define AD5941_MOSI_PIN 23       // GPIO23 (default SPI MOSI)
+#define AD5941_MISO_PIN 19       // GPIO19 (default SPI MISO)
+#define AD5941_SCK_PIN 18        // GPIO18 (default SPI SCK)
+#define AD5941_RESET_PIN 25      // GPIO25 (WROOM-32 safe)
+#define AD5941_INT_PIN 26        // GPIO26 (WROOM-32 safe)
 
 // AD8232 ECG Sensor (Analog + Digital)
-#define ECG_PIN 34
-#define LO_PLUS_PIN 32
-#define LO_MINUS_PIN 33
+#define ECG_PIN 36               // GPIO36 (input-only, ADC1_CH0)
+#define LO_PLUS_PIN 32           // GPIO32 (WROOM-32 safe, ADC1_CH4)
+#define LO_MINUS_PIN 33          // GPIO33 (WROOM-32 safe, ADC1_CH5)
+
+// Blood Pressure Monitor pins (virtual/software implementation)
+#define BP_ENABLE_PIN 27         // GPIO27 (WROOM-32 safe)
+#define BP_PUMP_PIN 12           // GPIO12 (avoid boot conflicts in production)
 
 // Measurement Intervals (milliseconds)
 #define HEART_RATE_INTERVAL 5000    // 5 seconds
@@ -100,6 +104,11 @@
 #define LOAD_CELL_CALIBRATION_FACTOR 2280.0
 #define WEIGHT_OFFSET 0.0
 
+// WROOM-32 Memory Optimization
+#define TASK_STACK_SIZE_SMALL 2048    // For light tasks
+#define TASK_STACK_SIZE_MEDIUM 3072   // For sensor tasks
+#define TASK_STACK_SIZE_LARGE 4096    // For heavy tasks
+
 // Alert Thresholds
 #define MAX_HEART_RATE 180
 #define MIN_HEART_RATE 40
@@ -109,5 +118,32 @@
 // Debug Configuration
 #define DEBUG_ENABLED true
 #define SERIAL_BAUD_RATE 115200
+
+// WROOM-32 Board Validation Function
+inline bool isValidWROOMPin(int pin) {
+    // Unusable pins on WROOM-32
+    if (pin >= 6 && pin <= 11) return false;  // Connected to flash
+    
+    // Input-only pins (can only be used for input)
+    if (pin == 34 || pin == 35 || pin == 36 || pin == 39) {
+        return true;  // Valid for input only
+    }
+    
+    // Boot-sensitive pins (use with caution)
+    if (pin == 0 || pin == 2 || pin == 12 || pin == 15) {
+        return true;  // Valid but boot sensitive
+    }
+    
+    // Standard GPIO pins
+    if ((pin >= 1 && pin <= 5) || 
+        (pin >= 12 && pin <= 19) || 
+        (pin >= 21 && pin <= 23) || 
+        (pin >= 25 && pin <= 27) || 
+        (pin >= 32 && pin <= 33)) {
+        return true;
+    }
+    
+    return false;
+}
 
 #endif // CONFIG_H

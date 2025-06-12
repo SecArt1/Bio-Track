@@ -1,0 +1,85 @@
+<!-- filepath: c:\Users\rewmo\Dev\G.P\gp\public\technology.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How It Works - BioTrack</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="/favicon.ico">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <a href="/" class="logo">BioTrack</a>
+        <nav>
+             <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/features.html">Features</a></li>
+                <li><a href="/technology.html" class="active">How It Works</a></li>
+                <li><a href="/faq.html">FAQ</a></li>
+                <li><a href="/privacy.html">Privacy</a></li>
+                <li><a href="/terms.html">Terms</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+         <section>
+            <div class="container">
+                <div class="content-card">
+                    <h1>How BioTrack Works: Secure & Simple</h1>
+                    <p class="lead">We believe technology should simplify, not complicate. Here's a look at how BioTrack securely handles your health data.</p>
+
+                    <div class="tech-split" style="margin-top: 2rem;">
+                         <div class="image-content">
+                             <img src="https://via.placeholder.com/400x350.png?text=App+to+Cloud+Diagram" alt="Data Flow Diagram">
+                         </div>
+                         <div class="text-content">
+                            <h2><i class="fas fa-cloud-upload-alt"></i> Your Data in the Cloud</h2>
+                            <p>When you enter a health reading (like heart rate or weight) into the BioTrack app:</p>
+                            <ol>
+                                <li>The app securely connects to Google Firebase using your authenticated account.</li>
+                                <li>Your data point (value, type, timestamp, notes) is encrypted during transmission.</li>
+                                <li>It's stored in your dedicated space within Firebase Firestore, a secure NoSQL cloud database.</li>
+                            </ol>
+                         </div>
+                    </div>
+
+                     <div class="tech-split" style="margin-top: 3rem;">
+                         <div class="text-content">
+                            <h2><i class="fas fa-user-shield"></i> Security & Privacy Focused</h2>
+                            <ul>
+                                <li><strong>Authentication:</strong> We use Firebase Authentication (Email/Password) to ensure only you can log in to your account. Password reset emails are handled securely.</li>
+                                <li><strong>Authorization:</strong> Firestore Security Rules are configured so that you can only read and write your *own* health data. No other user can access your records.</li>
+                                <li><strong>Infrastructure:</strong> We rely on Google Cloud's robust and secure infrastructure, benefiting from their expertise in data protection.</li>
+                                <li><strong>No Third-Party Sharing (Unless Required):</strong> We don't sell your personal health data. We only share information as outlined in our Privacy Policy, primarily for app functionality (like cloud storage) or if legally required.</li>
+                            </ul>
+                         </div>
+                          <div class="image-content">
+                             <img src="https://via.placeholder.com/400x300.png?text=Security+Shield+Icon" alt="Security Concept">
+                         </div>
+                    </div>
+
+                    <div style="margin-top: 3rem; text-align: center;">
+                        <h2><i class="fas fa-mobile-alt"></i> Built with Flutter</h2>
+                        <p>BioTrack is developed using Flutter, Google's UI toolkit for building beautiful, natively compiled applications for mobile from a single codebase. This allows for a consistent experience and faster development of new features.</p>
+                        <a href="https://flutter.dev" target="_blank" rel="noopener noreferrer" class="button button-secondary">Learn More About Flutter</a>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 BioTrack. All rights reserved.</p>
+        <p>
+            <a href="/privacy.html">Privacy Policy</a> |
+            <a href="/terms.html">Terms of Service</a> |
+            <a href="/faq.html">FAQ</a>
+        </p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>

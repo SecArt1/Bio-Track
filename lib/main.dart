@@ -12,12 +12,15 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:bio_track/l10n/app_localizations.dart';
 import 'package:bio_track/l10n/language_provider.dart';
 import 'package:bio_track/Auth/auth_wrapper.dart';
+import 'firebase_options.dart';
 
 bool ignoreAuthChanges = false;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   print('🔥 Firebase initialized successfully');
   runApp(
     MultiProvider(
