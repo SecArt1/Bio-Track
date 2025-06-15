@@ -1,0 +1,12 @@
+{
+  "topic": "biotrack/device/BIOTRACK_001/telemetry",
+  "deviceId": "BIOTRACK_001",
+  "timestamp": "2025-06-15T16:50:00.000Z",
+  "payload": {
+    "temperature": 37.2,
+    "heartRate": 78,
+    "spO2": 98,
+    "deviceId": "BIOTRACK_001",
+    "timestamp": 1718470200000
+  }
+}

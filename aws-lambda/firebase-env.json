@@ -1,0 +1,12 @@
+{
+  "Variables": {
+    "USE_MOCK_FIREBASE": "false",
+    "AWS_IOT_ENDPOINT": "azvqnnby4qrmz-ats.iot.eu-central-1.amazonaws.com",
+    "FIREBASE_PROJECT_ID": "bio-track-de846",
+    "FIREBASE_PRIVATE_KEY_ID": "093069fb20d9d27cebee5073eeca8dbd0d890389",
+    "FIREBASE_PRIVATE_KEY": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDUUCpDx1ThyQTS\nlnqqiEf8aw+Sm6GUT56RwQuUV81kww3nyz5cqIy/ObqjDFLUpe2ws5ZcW647o7kA\nH1lHeQkjmyEFybrlWkRVRd55xl+hD435xZ1mfaNpWH5uPGEER3R58DS70HonsESM\nLo7vVlYWPJHjV3O/Cbenk2wOd1fFXs3AmN3J0D2dWpYyY9C/LxjC6w8jv6EI02Oa\nxAIYnSWpQ3IXy9UqPZihzgI4DtIhVILPTogtskUOkqzhyNFl4vdUQdHKL3u3TZ5k\naa5WIYdihBSJP6Zf4rKeXqJEAqi0nmA6qe3OaUk8cNE87tj479pcifS2SleNotMX\nzAZYgtqTAgMBAAECggEADDl/bX6lMwjth6iVcIs/RdfuQh1G7PC2qyLH5Wc20tXu\nT4ni0df8nqgWyHuVq1vQd0un3TKEMjfnl4u2ish7z7qHaLtoUPtlEtneiPl0mSP5\no0ePHA8g4Rhw0y0T0vjASqMbjjLfTbi3AbFOlpZMh6Q+LC5lYjsPgY0Z/C0/9wO3\nB66grQfzpYaKe7wCl5obeGdK2BuFdB7QMWOdlODEloSenB+C8CdBWx7EH1rAqRB/\n5uOJ7a+notNaBV+laPlCP2SHmA/FOJuQLK/7rfmJjRmNOeC9Eo3bQlf/oc02GURi\nt2aPcRaQEVHx5DsZb1LcDz1Q3OkaBTHz65zP/bktfQKBgQD1t6g+q8KZN45kDUQY\n4AG+ZYHAcwnZXhqsfUWJjp6y8cSI8tilVcGk5kVbRFl7uTaxd5q6vaO2yIMVjO1M\nAbrlN1UheI/S12cgXqBFuRRdlOv2uWz/NB0OOGnW8Xg22Cy0QrBFZiZQYWNrBYj6\nD54qGEHj7oV9AmFU3Sqiz/wAHwKBgQDdMqbagHuRO+SM5fbA9HdC7MbPZHcfyI3A\nFynxOsPnNxdxl1KRX/y29Hp9oNkw1bzOgDUwTS4/87O+fqL0tgego0QRzQlfGu/n\nMaK2zb82LMTV+O/uFFZtvQNqbKLxPCtjmKOcjxEQZ5XQcb4FAnfkKKUAYZoeQ3s3\n6Cc7rIoHDQKBgG1hwl2TrF70YkibtzKzlVMicK4xB7NhttIOOgRQHsld4rVsFZEU\nKc20TC+ir4rqGjTKH3D9toFJpUDUqVXqdz5OcXEi8DNVfCzmssYW67/06U29oY3B\nryWDa2opt/ACL3RXM4zROkER+WXM4vseNLRcdAh5R6cshhN3GOG9YFrVAoGBAIkM\nYf7NTkIcxq1ZqfnBPcc0ZrWGfJwvqUvTzkPM8iXmp1rUs+6ody5v6Ri/OPId635S\nRyInH7m1567mTVarFay8m2cgD2dijDNFOJhkf800Dby5IQb0iNwzGNOufYJTklqB\n7xUIOz1bwKHGZ0I5VkkBucGzt0Z67vQjnXNGorpdAoGAagEAYspMHc60oGkuxT0C\nHGzp1aIbapISz+ZlKkmgOYabKO9YzqLoc9gAfxtFy1Tg/BEuMLNt/Lon/aJfO4nl\ncScUB19cGx/VRhKiJ4IUghn58W7eDJEVMKiJ3nUSdujSedGAUGO22b5kofxrfDQw\n+NJmsVC3RMsyYB8Ey/tsBjg=\n-----END PRIVATE KEY-----\n",
+    "FIREBASE_CLIENT_EMAIL": "firebase-adminsdk-fbsvc@bio-track-de846.iam.gserviceaccount.com",
+    "FIREBASE_CLIENT_ID": "101192543433121760795",
+    "FIREBASE_CLIENT_X509_CERT_URL": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40bio-track-de846.iam.gserviceaccount.com"
+  }
+}

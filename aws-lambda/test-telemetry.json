@@ -1,0 +1,13 @@
+{
+  "deviceId": "biotrack-device-001",
+  "timestamp": "2025-06-15T15:30:00Z",
+  "vitals": {
+    "temperature": 36.8,
+    "heartRate": 75,
+    "bloodOxygen": 98,
+    "weight": 70.2,
+    "bodyFat": 15.5
+  },
+  "batteryLevel": 85,
+  "location": "test_location"
+}

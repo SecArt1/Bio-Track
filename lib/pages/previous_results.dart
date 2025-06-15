@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 import 'package:bio_track/l10n/app_localizations.dart';
-import 'package:bio_track/l10n/language_provider.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class PreviousResultsPage extends StatefulWidget {
@@ -22,7 +19,6 @@ class _PreviousResultsPageState extends State<PreviousResultsPage>
   String _selectedFilter = 'all'; // 'all', 'week', 'month', 'year'
   String _selectedMetric = 'all'; // 'all', 'heart_rate', 'blood_pressure', etc.
   TabController? _tabController;
-  bool _showChart = true;
 
   @override
   void initState() {
@@ -46,20 +42,62 @@ class _PreviousResultsPageState extends State<PreviousResultsPage>
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
         throw Exception('No authenticated user found');
+      } // Query multiple collections for comprehensive results with error handling
+      List<Map<String, dynamic>> allResults = [];
+
+      // Try to query each collection individually and handle permission errors
+      final collections = [
+        {'name': 'healthMetrics', 'displayName': 'Health Metrics'},
+        {'name': 'testResults', 'displayName': 'Test Results'},
+        {'name': 'healthScreenings', 'displayName': 'Health Screenings'},
+      ];
+
+      for (final collection in collections) {
+        try {
+          final snapshot = await FirebaseFirestore.instance
+              .collection(collection['name']!)
+              .where('userId', isEqualTo: user.uid)
+              .orderBy('timestamp', descending: true)
+              .get();
+
+          for (var doc in snapshot.docs) {
+            final data = doc.data();
+            allResults.add({
+              'id': doc.id,
+              'collection': _getCollectionName(doc.reference.parent.id),
+              ...data,
+            });
+          }
+
+          print(
+              '✅ Successfully loaded ${snapshot.docs.length} documents from ${collection['name']}');
+        } catch (e) {
+          print('⚠️ Failed to load from ${collection['name']}: $e');
+          // Continue with other collections even if one fails
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                    'Could not load ${collection['displayName']}: Limited permissions'),
+                duration: const Duration(seconds: 2),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
+        }
       }
 
-      // Query Firestore for test results
-      final QuerySnapshot resultsSnapshot = await FirebaseFirestore.instance
-          .collection('healthMetrics')
-          .where('userId', isEqualTo: user.uid)
-          .orderBy('timestamp', descending: true)
-          .get();
+      // Sort all results by timestamp
+      allResults.sort((a, b) {
+        final aTime = (a['timestamp'] as Timestamp).toDate();
+        final bTime = (b['timestamp'] as Timestamp).toDate();
+        return bTime.compareTo(aTime); // Descending order
+      });
 
       // Filter results based on selected filter
       List<Map<String, dynamic>> filteredResults = [];
 
-      for (var doc in resultsSnapshot.docs) {
-        final data = doc.data() as Map<String, dynamic>;
+      for (var data in allResults) {
         final DateTime timestamp = (data['timestamp'] as Timestamp).toDate();
         final now = DateTime.now();
 
@@ -85,14 +123,13 @@ class _PreviousResultsPageState extends State<PreviousResultsPage>
 
         // Apply metric filter
         if (includeResult && _selectedMetric != 'all') {
-          includeResult = data['type'] == _selectedMetric;
+          String dataType = _normalizeMetricType(
+              data['type'] ?? data['testType'] ?? 'unknown');
+          includeResult = dataType == _selectedMetric;
         }
 
         if (includeResult) {
-          filteredResults.add({
-            'id': doc.id,
-            ...data,
-          });
+          filteredResults.add(data);
         }
       }
 
@@ -117,6 +154,52 @@ class _PreviousResultsPageState extends State<PreviousResultsPage>
 
   String _formatDate(DateTime date) {
     return DateFormat('MMM dd, yyyy - HH:mm').format(date);
+  }
+
+  String _getCollectionName(String collectionId) {
+    switch (collectionId) {
+      case 'healthMetrics':
+        return 'legacy';
+      case 'testResults':
+        return 'device_tests';
+      case 'healthScreenings':
+        return 'screenings';
+      default:
+        return 'unknown';
+    }
+  }
+
+  String _normalizeMetricType(String rawType) {
+    // Normalize different type variations to standard metric types
+    final normalized =
+        rawType.toLowerCase().replaceAll('_', '').replaceAll(' ', '');
+
+    if (normalized.contains('heart') ||
+        normalized.contains('pulse') ||
+        normalized.contains('bpm')) {
+      return 'heart_rate';
+    } else if (normalized.contains('pressure') ||
+        normalized.contains('systolic') ||
+        normalized.contains('diastolic')) {
+      return 'blood_pressure';
+    } else if (normalized.contains('weight') || normalized.contains('mass')) {
+      return 'weight';
+    } else if (normalized.contains('glucose') || normalized.contains('sugar')) {
+      return 'blood_sugar';
+    } else if (normalized.contains('oxygen') ||
+        normalized.contains('spo2') ||
+        normalized.contains('o2')) {
+      return 'oxygen';
+    } else if (normalized.contains('temperature') ||
+        normalized.contains('temp')) {
+      return 'temperature';
+    } else if (normalized.contains('bioimpedance') ||
+        normalized.contains('bodyfat') ||
+        normalized.contains('fat')) {
+      return 'body_composition';
+    }
+
+    return rawType;
   }
 
   // Generate chart data for the selected metric
@@ -163,8 +246,6 @@ class _PreviousResultsPageState extends State<PreviousResultsPage>
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context);
-    final languageProvider = Provider.of<LanguageProvider>(context);
-    final isArabic = languageProvider.isArabic;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -261,8 +342,12 @@ class _PreviousResultsPageState extends State<PreviousResultsPage>
                           value: 'blood_sugar',
                           child: Text(localizations.translate('blood_sugar'))),
                       DropdownMenuItem(
-                          value: 'oxygen',
-                          child: Text(localizations.translate('oxygen'))),
+                          value: 'temperature',
+                          child: Text(localizations.translate('temperature'))),
+                      DropdownMenuItem(
+                          value: 'body_composition',
+                          child: Text(
+                              localizations.translate('body_composition'))),
                     ],
                     onChanged: (value) {
                       if (value != null) {

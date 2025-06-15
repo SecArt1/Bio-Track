@@ -1,0 +1,247 @@
+1. Inventory File Management
+Designate a single JSON-based inventory file (e.g. cloud-inventory.json) stored in a persistent location.
+
+Contents should include:
+
+Authentication and context details: AWS profile names or access key identifiers, GCP project IDs or service-account identifiers (never raw secrets).
+
+Resource names/IDs to manage or that have been created.
+
+Last-completed step identifier or checkpoint token.
+
+Timestamps of significant events (e.g., creation times, modifications).
+
+Read/Write Helpers: implement functions like Get-Meta(key) and Set-Meta(key, value) that load the JSON, read/write the field, and serialize back immediately.
+
+Initialization: on startup, check if inventory file exists; if not, create an empty JSON object. Then enumerate required keys (e.g., AWS profile, GCP project), prompting or retrieving securely if missing, and store them immediately 
+scriptrunner.com
+medium.com
+.
+
+Frequent Updates: after every action (successful or even failed attempt if relevant), update the inventory file to reflect new resource states or error markers. This prevents losing track during long-running operations.
+
+Checkpointing: maintain a “LastCompletedStep” entry so that upon restart the agent can skip already-done tasks and resume at the next one.
+
+2. Logging and Structured Output
+Transcript / Session Log: invoke PowerShell’s Start-Transcript to capture full console session into a log file for auditing 
+cloud.google.com
+docs.aws.amazon.com
+.
+
+Structured Logging Function: define a Log(level, message) that emits JSON objects containing timestamp, level (INFO/WARN/ERROR), step name, and optional details. Write these lines to console and into a separate log sink if available.
+
+Avoid Logging Secrets: never emit raw secrets or plaintext credentials. Instead refer to keys by safe identifiers or use secure references (Key Vault, AWS Secrets Manager, GCP Secret Manager) 
+cloud.google.com
+cloud.google.com
+.
+
+Integration: optionally forward logs to cloud logging services (CloudWatch Logs, GCP Cloud Logging) by invoking the respective PowerShell cmdlets. For example, in GCP: create log sinks or metrics via Cloud Tools for PowerShell 
+cloud.google.com
+.
+
+Error Reporting: in catch blocks, emit ERROR-level logs with error details (but scrub sensitive data). If an unrecoverable error occurs, record it in inventory (e.g. Set-Meta "LastError" { step, message, timestamp }), then halt or escalate.
+
+3. Progress Reporting
+Write-Progress: for each high-level step, wrap into a loop or sequence where Write-Progress -Activity "<Operation>" -Status "<StepName>" -PercentComplete <calculated> shows real-time feedback in the console 
+learn.microsoft.com
+.
+
+Long-Running Operations: if a cmdlet doesn’t natively report progress, implement polling loops:
+
+Start the operation in background or asynchronous mode if possible.
+
+Periodically query status (e.g., check AWS operation status via describe commands or GCP via get operations).
+
+On each poll, update Write-Progress and write a partial checkpoint into inventory (e.g., current poll iteration, last known status).
+
+If operation stalls beyond a threshold, log a warning and optionally retry or abort gracefully 
+stackoverflow.com
+.
+
+Background Jobs: consider Start-Job or run tasks as scheduled runbooks so that the main session remains responsive and can monitor progress externally.
+
+Timeouts & Retries: for operations that may hang, specify reasonable timeouts, and implement retry logic with exponential backoff, logging each retry attempt to inventory and logs 
+serveracademy.com
+aws.amazon.com
+.
+
+4. Idempotency and Pre-Check Patterns
+Existence Checks: before creating/updating/deleting a resource, always check current state:
+
+AWS: e.g., Get-EC2Instance, Get-S3Bucket, etc., with -ErrorAction SilentlyContinue.
+
+GCP: use Get-GceInstance, Get-GcsBucket, etc., via Cloud Tools for PowerShell 
+cloud.google.com
+codelabs.developers.google.com
+.
+
+Conditional Actions: if resource exists with desired configuration, log “already in desired state” and skip creation; if state differs, decide update vs recreate based on policy.
+
+Tagging and Metadata: apply consistent tags/labels to resources so that later queries can reliably identify managed resources. Store tag values in inventory to cross-check.
+
+Declarative vs Imperative: where feasible, leverage IaC tools (ARM/Bicep for Azure, CloudFormation/Terraform for AWS, Deployment Manager/Terraform for GCP). The AI can drive those tools via PowerShell, and after deployment, parse their outputs into inventory 
+aws.amazon.com
+.
+
+5. Authentication and Secrets Handling
+AWS: prefer named profiles or assume roles rather than embedding access keys. If keys must be used, retrieve them at runtime from AWS Secrets Manager or encrypted store and never write them to disk or logs.
+
+GCP: use service account JSON files stored securely, or leverage Workload Identity if running on a VM. The AI should reference these in environment variables or secure parameters.
+
+Secure Retrieval: implement functions like Get-Secret("AWS") that interface with a secure vault. Immediately discard secret variables after use (e.g., clear variable content).
+
+Least Privilege: ensure the credentials used have only necessary permissions. The AI should check with an inventory entry indicating which roles/permissions are in use.
+
+6. Error Handling and Recovery
+Try–Catch–Finally: wrap each discrete operation in a try { … } catch { Log ERROR; update inventory error state } finally { optional cleanup } 
+serveracademy.com
+.
+
+Inventory on Failure: if a step fails, record into inventory: step name, error message, timestamp. Optionally include a retry count.
+
+Resuming After Interrupts: at startup, inspect LastCompletedStep and any “in-progress” markers in inventory. Skip steps already done; for partially completed operations, decide whether to roll back or continue based on recorded status.
+
+Alerting: if running unattended, send notifications (e.g., email/SNS/Cloud Pub/Sub) on critical failures, using PowerShell cmdlets for email or cloud notifications.
+
+7. AWS-Specific Patterns
+AWS PowerShell Module: ensure the correct AWS.Tools modules are installed and imported. Validate module versions before operations 
+scriptrunner.com
+.
+
+Regions and Profiles: inventory should track the target region and profile context. Use Initialize-AWSDefaults patterns.
+
+Resource Naming Conventions: enforce standardized naming; record naming templates in inventory so that the AI can derive names systematically (e.g., “<project>-<env>-<resourceType>-<uniqueId>”).
+
+Change Tracking: for AWS, consider Systems Manager Inventory or Config to track actual environment state against expected; the AI can invoke SSM cmdlets via PowerShell to register instances or query configuration 
+docs.aws.amazon.com
+.
+
+CloudFormation / CDK: if using CloudFormation driven by PowerShell, after stack operations parse outputs (Get-CFNStack) and update inventory with resulting resource IDs.
+
+CLI vs PowerShell: when necessary, call AWS CLI via PowerShell if a cmdlet lacks specific functionality, capturing stdout/stderr, and parsing JSON output back into inventory.
+
+8. GCP-Specific Patterns
+Cloud Tools for PowerShell: ensure Google.Cloud modules are installed and authenticated. Validate access to project and APIs 
+codelabs.developers.google.com
+.
+
+Project and Region Settings: inventory must store GCP project ID, region/zone context. Use Set-GceProject or equivalent.
+
+Resource Discovery: to enumerate existing resources for idempotency, use Get-GceInstance, Get-GcsBucket, etc., and record their metadata in inventory.
+
+Deployment Manager or Terraform: if using Deployment Manager, drive via gcloud CLI invoked from PowerShell or appropriate REST calls; capture deployment outputs to inventory.
+
+Logging & Monitoring: the AI can create or update log sinks, metrics, or alerting policies via PowerShell cmdlets to instrument deployed resources 
+cloud.google.com
+.
+
+9. Progress and Long-Running Jobs in Cloud Context
+Asynchronous APIs: many cloud operations are asynchronous. The AI must poll status until completion. After initiating (e.g., launching instance), immediately record the operation identifier in inventory. Poll with delays, updating progress bars and inventory with percent or stage.
+
+Timeout Strategy: implement maximum wait times per operation; on timeout, log a warning, record status, and possibly retry or escalate.
+
+Parallelism: if multiple independent operations can run concurrently, manage them as background jobs or runspaces. Maintain a sub-inventory tracking each job’s status to avoid losing track.
+
+Heartbeat: for very long tasks, periodically write a “heartbeat” entry to inventory (e.g., timestamp and current operation) so that external monitors know the AI is still active.
+
+10. Command-Line Escaping and PowerShell Techniques
+Proper Quoting: when constructing commands or passing parameters, always escape special characters. Use single-quoted strings for literal values, double quotes only when interpolation is needed. For example: New-S3Bucket -BucketName 'my-bucket-123'.
+
+Parameter Validation: before using user-supplied or inventory-derived values, validate formats (e.g., check GUID format, region strings). Sanitize inputs to avoid injection issues.
+
+Modular Functions: structure the agent’s logic into reusable functions: e.g., Invoke-AwsOperation, Invoke-GcpOperation, Update-Inventory, Log-And-Progress. This improves readability and maintainability.
+
+Verbose and Debug Streams: leverage Write-Verbose and Write-Debug for low-level details; allow toggling verbosity via an “AI runtime” flag. Record verbose outputs to separate debug logs, not the main log.
+
+ErrorAction and Try/Catch: always specify -ErrorAction Stop on cmdlets to ensure failures are caught. Example: Get-S3Bucket -BucketName $name -ErrorAction Stop.
+
+11. Security and Compliance
+Least Privilege: ensure cloud credentials only have needed permissions. The AI should verify its identity context (e.g., Get-IAMCallerIdentity) and record caller identity in inventory.
+
+Secrets Management: avoid embedding keys. Use vaults: AWS Secrets Manager, GCP Secret Manager, or environment-based tokens. After retrieving secrets, clear variables: e.g., $awsKey = $null.
+
+Audit Logging: configure cloud audit logs (e.g., CloudTrail for AWS, Audit Logs for GCP). The AI can ensure those are enabled and record status in inventory.
+
+Encryption in Transit/Rest: ensure any stored inventory file is encrypted at rest (e.g., store in encrypted volume) and use secure channels when transmitting sensitive data.
+
+12. Resilience and Recovery
+Resume Logic: at startup, read LastCompletedStep and any “in-progress” markers. If a previous run was interrupted during step X, decide based on inventory whether to roll back partial resources or attempt to complete. Log the decision.
+
+Retries and Backoff: for transient errors, implement retry loops with exponential backoff, counting attempts in inventory to avoid infinite loops.
+
+Cleanup Handlers: for operations that allocate temporary resources (e.g., temp buckets), include cleanup steps in finally blocks, and record cleanup status.
+
+External Monitoring: optionally emit heartbeat or status updates to an external monitoring endpoint or cloud service (e.g., send periodic HTTPS POSTs), so that if the AI hangs, external system can alert.
+
+13. Notification and Reporting
+Completion Reports: after finishing a set of tasks, collate a summary from inventory: list of resources created/updated, durations, any warnings/errors. Output to console and optionally send via email or cloud notification (SNS, Pub/Sub).
+
+Daily/Periodic Summaries: if the AI runs continuously or on schedule, generate periodic reports of changes since last run by comparing inventory snapshots.
+
+Change Auditing: store historical inventory snapshots (e.g., timestamped copies) so that drift or unauthorized external changes can be detected by diffing past vs current inventory.
+
+14. Best Practices References (for AI to consult or embed)
+PowerShell Progress: use Write-Progress for real-time feedback 
+learn.microsoft.com
+.
+
+AWS Tools for PowerShell: install and import modules; authenticate via named profiles/roles; check AWS best practices for automation (e.g., from AWS blogs) 
+scriptrunner.com
+medium.com
+.
+
+GCP Cloud Tools for PowerShell: follow Google’s guides for installing and using cmdlets; authenticate using service accounts or ADC 
+cloud.google.com
+codelabs.developers.google.com
+.
+
+Logging & Monitoring: integrate with CloudWatch/Cloud Logging; structured JSON logs for easy parsing 
+cloud.google.com
+.
+
+Operations Best Practices: for GCP, follow operation best practices from Cloud Architecture Center (e.g., ensure monitoring, resilience, proper resource labeling) 
+cloud.google.com
+.
+
+IaC Integration: when possible, drive declarative templates (CloudFormation, Deployment Manager, Terraform) from PowerShell, capturing outputs into inventory 
+aws.amazon.com
+.
+
+Security: enforce least privilege, secure secrets, enable audit logging, encrypt inventory at rest 
+cloud.google.com
+cloud.google.com
+.
+
+15. AI Agent Prompt Guidelines
+When instructing the AI model itself (in a prompt or config), specify:
+
+Stateful Context: maintain state across steps via reading/writing the inventory file.
+
+Action Declaration: before executing any PowerShell cmdlet, log “PLANNING <OperationName> with parameters <…>”. Then update inventory with planned action.
+
+Execution and Verification: after planning, run the PowerShell command; upon completion, log result and verify via a follow-up “get” cmdlet, updating inventory with actual observed data.
+
+Progress Feedback Loop: for long tasks, poll status and update both console progress and inventory. If polling exceeds thresholds, log warning and follow retry/backoff policy.
+
+Error Strategy: on errors, follow pre-defined retry/backoff; if still failing, record error in inventory, send notification, and decide (based on config) to halt or skip.
+
+Reporting: after each high-level operation or group of operations, the AI compiles a brief summary and writes it to a “run-summary” section in inventory.
+
+Extensibility: design the AI’s logic to load a list of “steps” from a configuration (e.g., JSON array describing desired operations), so new tasks can be added without modifying core code.
+
+Security Enforcement: in the prompt, emphasize retrieving credentials securely, never echoing them, and clearing them after use.
+
+Validation: after every resource creation/update, run validation checks (e.g., test connectivity, configuration state) and record validation results in inventory.
+
+Cleanup/Teardown: include optional teardown flows that read inventory to identify resources to delete, confirming with tagging or user prompt before deletion.
+
+16. Example Instruction Snippet to AI
+You are a cloud automation agent. Your runtime environment supports invoking PowerShell cmdlets for AWS and GCP. Before any action, you must record “PLANNED” entries into cloud-inventory.json. After performing a cmdlet, verify success via corresponding “Get-” cmdlet and record the actual resource state. Use Write-Progress to emit progress updates in the console for any operation expected to take longer than a few seconds. Implement try-catch-finally around every discrete operation; on errors, record error details and retry based on exponential backoff policy defined in the configuration. Always fetch credentials securely at runtime (do not hardcode); after retrieving secrets, immediately clear variables. Use idempotent checks: if resource already exists with desired configuration, skip creation. Maintain a “LastCompletedStep” in inventory to support resuming after interruptions. After finishing the run, produce a summary section in inventory listing resources created, updated, durations, and any warnings or errors. For any long-running cloud API calls (e.g., instance launches), poll status and update both progress bar and inventory. For AWS, ensure appropriate region and profile context; for GCP, ensure correct project and zone context. Use tags/labels consistently and record them. Integrate with cloud logging: send structured logs to CloudWatch or Cloud Logging. If running in unattended mode, send failure notifications via SNS or Pub/Sub. Validate each resource after creation (e.g., check instance health). Support cleanup flows by reading inventory and deleting resources when requested.
+
+Always update cloud-inventory.json immediately after planning, start, progress milestones, and completion of each action. Ensure idempotency and security best practices at every step.
+
+17. Saving as a Text File
+Save this manual as ai-cloud-agent-instructions.txt. The AI can read this spec at startup to configure its behavior.
+
+The actual PowerShell scripts or functions invoked by the AI are separate; this spec governs the agent’s orchestration logic, not concrete scripts.
+

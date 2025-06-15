@@ -1,0 +1,8 @@
+{
+  "deviceId": "biotrack-device-001",
+  "userId": "test_user_123",
+  "status": "paired",
+  "deviceType": "biotrack_sensor",
+  "pairingDate": "2025-06-15T20:45:00Z",
+  "deviceName": "BioTrack Device 001"
+}

@@ -1,0 +1,166 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'BioTrack IoT Infrastructure - AWS IoT Core and Lambda (Simplified)'
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: biotrack
+    Description: Name of the project
+
+Resources:
+  # IAM Role for Lambda function
+  BioTrackLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ProjectName}-lambda-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: IoTDataAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - iot:Publish
+                  - iot:Subscribe
+                  - iot:Connect
+                  - iot:Receive
+                  - iot:GetThingShadow
+                  - iot:UpdateThingShadow
+                  - iot:DeleteThingShadow
+                Resource: '*'
+        - PolicyName: LogsAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+
+  # Lambda function for IoT processing
+  BioTrackIoTBridgeLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub '${ProjectName}-iot-bridge'
+      Runtime: nodejs18.x
+      Handler: index.handler
+      Role: !GetAtt BioTrackLambdaRole.Arn
+      Code:
+        ZipFile: |
+          exports.handler = async (event) => {
+            console.log('IoT Event received:', JSON.stringify(event, null, 2));
+            
+            // Basic processing without Firebase for now
+            if (event.topic && event.payload) {
+              console.log(`Processing message from topic: ${event.topic}`);
+              console.log(`Payload:`, event.payload);
+            }
+            
+            return { statusCode: 200, body: 'Event processed' };
+          };
+      Timeout: 60
+      MemorySize: 256
+
+  # Lambda permission for IoT Rule
+  IoTRuleLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref BioTrackIoTBridgeLambda
+      Principal: iot.amazonaws.com
+      SourceArn: !GetAtt BioTrackTelemetryRule.Arn
+
+  # IoT Policy for devices
+  BioTrackDevicePolicy:
+    Type: AWS::IoT::Policy
+    Properties:
+      PolicyName: !Sub '${ProjectName}-device-policy'
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - iot:Connect
+            Resource: !Sub 'arn:aws:iot:${AWS::Region}:${AWS::AccountId}:client/${ProjectName}-device-*'
+          - Effect: Allow
+            Action:
+              - iot:Publish
+            Resource:
+              - !Sub 'arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/${ProjectName}/device/*/telemetry'
+              - !Sub 'arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/${ProjectName}/device/*/status'
+              - !Sub 'arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/${ProjectName}/device/*/responses'
+              - !Sub 'arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/$aws/thing/*/shadow/update'
+              - !Sub 'arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/$aws/thing/*/shadow/get'
+          - Effect: Allow
+            Action:
+              - iot:Subscribe
+            Resource:
+              - !Sub 'arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topicfilter/${ProjectName}/device/*/commands'
+              - !Sub 'arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topicfilter/$aws/thing/*/shadow/update/delta'
+              - !Sub 'arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topicfilter/$aws/thing/*/shadow/get/accepted'
+          - Effect: Allow
+            Action:
+              - iot:Receive
+            Resource:
+              - !Sub 'arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/${ProjectName}/device/*/commands'
+              - !Sub 'arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/$aws/thing/*/shadow/update/delta'
+              - !Sub 'arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/$aws/thing/*/shadow/get/accepted'
+          - Effect: Allow
+            Action:
+              - iot:GetThingShadow
+              - iot:UpdateThingShadow
+            Resource: !Sub 'arn:aws:iot:${AWS::Region}:${AWS::AccountId}:thing/${ProjectName}-device-*'
+
+  # IoT Rule for telemetry data
+  BioTrackTelemetryRule:
+    Type: AWS::IoT::TopicRule
+    Properties:
+      RuleName: !Sub '${ProjectName}_telemetry_rule'
+      TopicRulePayload:
+        Description: 'Process telemetry data from BioTrack devices'
+        Sql: !Sub "SELECT *, topic() as topic, timestamp() as timestamp FROM '${ProjectName}/device/+/telemetry'"
+        Actions:
+          - Lambda:
+              FunctionArn: !GetAtt BioTrackIoTBridgeLambda.Arn
+
+  # IoT Rule for device status
+  BioTrackStatusRule:
+    Type: AWS::IoT::TopicRule
+    Properties:
+      RuleName: !Sub '${ProjectName}_status_rule'
+      TopicRulePayload:
+        Description: 'Process status updates from BioTrack devices'
+        Sql: !Sub "SELECT *, topic() as topic, timestamp() as timestamp FROM '${ProjectName}/device/+/status'"
+        Actions:
+          - Lambda:
+              FunctionArn: !GetAtt BioTrackIoTBridgeLambda.Arn
+
+Outputs:
+  IoTEndpoint:
+    Description: 'AWS IoT Core endpoint'
+    Value: !Sub '${AWS::AccountId}.iot.${AWS::Region}.amazonaws.com'
+    Export:
+      Name: !Sub '${ProjectName}-iot-endpoint'
+
+  LambdaFunctionArn:
+    Description: 'ARN of the IoT Bridge Lambda function'
+    Value: !GetAtt BioTrackIoTBridgeLambda.Arn
+    Export:
+      Name: !Sub '${ProjectName}-lambda-arn'
+
+  DevicePolicyName:
+    Description: 'Name of the IoT device policy'
+    Value: !Ref BioTrackDevicePolicy
+    Export:
+      Name: !Sub '${ProjectName}-device-policy'

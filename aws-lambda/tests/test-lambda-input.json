@@ -1,0 +1,22 @@
+{
+  "Records": [
+    {
+      "eventVersion": "1.0",
+      "eventSource": "aws:iot",
+      "eventTime": "2025-06-15T10:50:00.000Z",
+      "eventName": "aws:iot:sql",
+      "awsRegion": "eu-central-1",
+      "eventSourceARN": "arn:aws:iot:eu-central-1:447191070724:rule/biotrack_telemetry_rule",
+      "messageAttributes": {},
+      "messageId": "test-message-001",
+      "timestamp": 1734262200000,
+      "topic": "biotrack/device/biotrack-device-001/telemetry",
+      "payload": {
+        "temperature": 36.5,
+        "heartRate": 72,
+        "timestamp": "2025-06-15T10:40:00Z",
+        "deviceId": "biotrack-device-001"
+      }
+    }
+  ]
+}

@@ -1524,16 +1524,16 @@ void processAndSendData() {
     }
 }
 
-void sendToFirebase(String data) {
+void sendToAWS(String data) {
     if (secureNetwork.sendSensorData(data, PRIORITY_NORMAL)) {
-        Serial.println("✅ Data published to Firebase");
+        Serial.println("✅ Data published to AWS IoT Core");
     } else {
-        Serial.println("❌ Failed to publish data to Firebase");
+        Serial.println("❌ Failed to publish data to AWS IoT Core");
         // Data is already stored locally by dataManager
     }
 }
 
-void reconnectMQTT() {
+void reconnectAWSIoT() {
     // This functionality is now handled by secureNetwork.checkConnections()
     // Keeping this function for compatibility
     secureNetwork.checkConnections();
@@ -1684,7 +1684,7 @@ void sendDeviceStatus() {
     statusDoc["config"]["mode"] = (currentMode == NORMAL_MODE) ? "normal" : 
                                   (currentMode == BLOOD_PRESSURE_TEST_MODE) ? "bp_test" : "debug";
     statusDoc["config"]["secureTransmission"] = USE_TLS_ENCRYPTION;
-    statusDoc["config"]["certificateVerification"] = VERIFY_FIREBASE_CERT;
+    statusDoc["config"]["certificateVerification"] = VERIFY_AWS_CERT;
     
     String statusJson;
     serializeJson(statusDoc, statusJson);

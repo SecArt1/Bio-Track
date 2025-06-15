@@ -11,9 +11,9 @@ import 'package:bio_track/pages/notifications.dart';
 import 'package:bio_track/pages/settings.dart';
 // Localization imports
 import 'package:bio_track/l10n/app_localizations.dart';
-import 'package:provider/provider.dart';
-import 'package:bio_track/l10n/language_provider.dart';
 import 'package:bio_track/pages/previous_results.dart';
+import 'package:bio_track/pages/device_pairing_screen.dart';
+
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
 
@@ -95,7 +95,6 @@ class _LandingPageState extends State<LandingPage> {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context);
-    final languageProvider = Provider.of<LanguageProvider>(context);
 
     return Scaffold(
       backgroundColor: const Color(0XFF0383c2),
@@ -394,6 +393,49 @@ class _LandingPageState extends State<LandingPage> {
                             "assets/prev_result.png",
                             width: 50,
                             height: 60,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+
+                  //////////////////////// Button (Device Pairing) /////////////////////////
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        backgroundColor: const Color(0xff065f89),
+                        elevation: 4,
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const DevicePairingScreen(),
+                          ),
+                        );
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Pair Device",
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          const Icon(
+                            Icons.link,
+                            color: Colors.white,
+                            size: 28,
                           ),
                         ],
                       ),

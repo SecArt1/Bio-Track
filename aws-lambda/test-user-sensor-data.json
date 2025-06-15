@@ -1,0 +1,16 @@
+{
+  "topic": "biotrack/device/biotrack-device-001/telemetry",
+  "timestamp": 1750006800000,
+  "deviceId": "biotrack-device-001",
+  "payload": {
+    "temperature": 37.2,
+    "heartRate": 72,
+    "spO2": 98,
+    "weight": 70.5,
+    "bioimpedance": {
+      "impedance": 420,
+      "bodyFat": 15.2,
+      "muscleMass": 58.3
+    }
+  }
+}

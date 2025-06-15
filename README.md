@@ -46,6 +46,44 @@ BioTrack follows a clean architecture approach with:
 - **Repository Layer** - Data access and persistence
 - **Model Layer** - Domain entities and data structures
 
+## 📁 Project Structure
+
+```
+BioTrack/
+├── 📱 Flutter Application
+│   ├── lib/                      # Flutter app source code
+│   │   ├── pages/               # App screens and pages
+│   │   ├── models/              # Data models and entities
+│   │   ├── services/            # Business logic and data services
+│   │   ├── Auth/                # Authentication handling
+│   │   └── l10n/                # Localization files
+│   ├── assets/                  # Images, fonts, and other assets
+│   ├── test/                    # Unit and widget tests
+│   └── pubspec.yaml             # Flutter dependencies
+│
+├── 🔥 Firebase Backend
+│   ├── functions/               # Cloud Functions
+│   ├── firestore.rules         # Database security rules
+│   ├── storage.rules           # File storage rules
+│   └── firebase.json           # Firebase configuration
+│
+├── ⚡ AWS IoT Integration
+│   ├── aws-lambda/             # Lambda functions for IoT processing
+│   └── esp32_firmware/         # ESP32 device firmware
+│
+├── 📚 Documentation
+│   ├── docs/                   # Complete project documentation
+│   │   ├── DEPLOYMENT_COMPLETE.md
+│   │   ├── ESP32_CONFIGURATION_GUIDE.md
+│   │   └── FLUTTER_TESTING_GUIDE.md
+│   └── PROJECT_CLEANUP_COMPLETE.md
+│
+└── 🔧 Configuration
+    ├── .firebase/              # Firebase CLI cache
+    ├── config/                 # Project configurations
+    └── scripts/                # Utility scripts
+```
+
 ## Getting Started
 
 ### Prerequisites
@@ -75,3 +113,4 @@ flutter pub get
 
 # Run the app
 flutter run
+```

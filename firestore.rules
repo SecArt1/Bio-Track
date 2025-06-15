@@ -32,9 +32,26 @@ service cloud.firestore {
       allow read, write: if isAuthenticated();
       allow create: if isAuthenticated();
     }
-    
-    // Health metrics - users can access their own metrics
+      // Health metrics - users can access their own metrics
     match /healthMetrics/{documentId} {
+      allow read, write: if isAuthenticated();
+      allow create: if isAuthenticated();
+    }
+
+    // Test results - users can access their own test results
+    match /testResults/{documentId} {
+      allow read, write: if isAuthenticated();
+      allow create: if isAuthenticated();
+    }
+
+    // Health screenings - users can access their own health screenings
+    match /healthScreenings/{documentId} {
+      allow read, write: if isAuthenticated();
+      allow create: if isAuthenticated();
+    }
+
+    // Device responses - users can access their own device responses
+    match /device_responses/{documentId} {
       allow read, write: if isAuthenticated();
       allow create: if isAuthenticated();
     }

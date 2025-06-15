@@ -1,0 +1,14 @@
+{
+  "deviceId": "biotrack-device-001",
+  "timestamp": "2025-06-15T16:45:00Z",
+  "vitals": {
+    "temperature": 37.2,
+    "heartRate": 78,
+    "bloodOxygen": 97,
+    "weight": 71.0,
+    "bodyFat": 16.2
+  },
+  "batteryLevel": 82,
+  "location": "home_test",
+  "testMessage": "End-to-end test from manual process"
+}

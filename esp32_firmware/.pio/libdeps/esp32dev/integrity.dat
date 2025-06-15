@@ -1,14 +1,14 @@
-bogde/HX711@^0.7.5
-ArduinoOTA
-paulstoffregen/OneWire@^2.3.7
 WiFiClientSecure
-milesburton/DallasTemperature@^3.11.0
-Preferences
-bblanchon/ArduinoJson@^6.21.3
-SPIFFS
-arduinoFFT@^1.6.2
-HTTPClient
 LittleFS
 knolleary/PubSubClient@^2.8
-sparkfun/SparkFun MAX3010x Pulse and Proximity Sensor Library@^1.1.2
+paulstoffregen/OneWire@^2.3.7
+bogde/HX711@^0.7.5
+milesburton/DallasTemperature@^3.11.0
+HTTPClient
+Preferences
+SPIFFS
+ArduinoOTA
+bblanchon/ArduinoJson@^6.21.3
+arduinoFFT@^1.6.2
 arduino-libraries/NTPClient@^3.1.0
+sparkfun/SparkFun MAX3010x Pulse and Proximity Sensor Library@^1.1.2

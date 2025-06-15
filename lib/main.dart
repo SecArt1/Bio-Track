@@ -18,10 +18,24 @@ bool ignoreAuthChanges = false;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  print('🔥 Firebase initialized successfully');
+
+  // Initialize Firebase with proper error handling
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    print('🔥 Firebase initialized successfully');
+  } catch (e) {
+    // If Firebase is already initialized, this will throw an exception
+    // but we can safely ignore it and continue
+    if (e.toString().contains('duplicate-app')) {
+      print('🔥 Firebase already initialized, using existing instance');
+    } else {
+      print('🔥 Firebase initialization error: $e');
+      rethrow;
+    }
+  }
+
   runApp(
     MultiProvider(
       providers: [

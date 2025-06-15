@@ -7,37 +7,64 @@
 #define WIFI_CONNECT_TIMEOUT 30000
 #define WIFI_RECONNECT_INTERVAL 5000
 
-// Firebase Configuration
-#define FIREBASE_PROJECT_ID "bio-track-de846"
-#define FIREBASE_API_KEY "YOUR_FIREBASE_API_KEY"
-#define FIREBASE_HOST "bio-track-de846-default-rtdb.firebaseio.com"
-#define FIREBASE_FUNCTIONS_URL "https://us-central1-bio-track-de846.cloudfunctions.net"
+// AWS IoT Core Configuration
+#define AWS_IOT_ENDPOINT "azvqnnby4qrmz-ats.iot.eu-central-1.amazonaws.com"
+#define AWS_IOT_PORT 8883
+#define AWS_IOT_CLIENT_ID "biotrack-device-001"
+#define AWS_IOT_THING_NAME "biotrack-device-001"
 
-// MQTT Configuration
-#define MQTT_SERVER "bio-track-de846-default-rtdb.firebaseio.com"
-#define MQTT_PORT 443
-#define MQTT_USERNAME ""
-#define MQTT_PASSWORD ""
+// Device Configuration
+#define DEVICE_ID "biotrack-device-001"
+#define FIRMWARE_VERSION "1.0.2"
+#define USER_ID_PLACEHOLDER "user_placeholder"
+
+// AWS IoT MQTT Topics
+#define TOPIC_BASE "biotrack/device/" DEVICE_ID
+#define TOPIC_TELEMETRY TOPIC_BASE "/telemetry"
+#define TOPIC_COMMANDS TOPIC_BASE "/commands"
+#define TOPIC_STATUS TOPIC_BASE "/status"
+#define TOPIC_RESPONSES TOPIC_BASE "/responses"
+#define TOPIC_SHADOW_UPDATE "$aws/thing/" AWS_IOT_THING_NAME "/shadow/update"
+#define TOPIC_SHADOW_GET "$aws/thing/" AWS_IOT_THING_NAME "/shadow/get"
+
+// AWS Lambda API Gateway Configuration
+#define AWS_API_GATEWAY_URL "https://isjd26qkie.execute-api.eu-central-1.amazonaws.com/prod"
+#define AWS_ACCOUNT_ID "447191070724"
+#define AWS_REGION "eu-central-1"
+
+// IoT Certificate Configuration
+#define AWS_IOT_CERTIFICATE_ID "7f024911d9857e9882fbdb1a4b469259cb99247e795c99c2d4374b952f9e1737"
+#define AWS_IOT_POLICY_NAME "biotrack-device-policy"
+
+// Certificate File Paths
+#define AWS_IOT_CERTIFICATE_FILE "/certs/device-certificate.pem.crt"
+#define AWS_IOT_PRIVATE_KEY_FILE "/certs/device-private.pem.key"
+#define AWS_ROOT_CA_FILE "/certs/amazon-root-ca1.pem"
+
+// Sensor Configuration
+#define TEMP_SENSOR_PIN 4
+#define WEIGHT_SENSOR_DOUT 5
+#define WEIGHT_SENSOR_SCK 18
+#define BIA_FREQUENCY_PIN 15
+#define SPO2_SDA_PIN 21
+#define SPO2_SCL_PIN 22
+
+// AWS IoT Configuration
+#define HEARTBEAT_INTERVAL 60000  // 1 minute
+#define RECONNECT_INTERVAL 5000   // 5 seconds
+#define KEEP_ALIVE_INTERVAL 60    // 60 seconds for MQTT
 
 // Security Configuration
 #define USE_TLS_ENCRYPTION true
-#define VERIFY_FIREBASE_CERT true
+#define VERIFY_AWS_CERT true
 #define NVS_ENCRYPTION_KEY "biotrack_nvs_key_2024"
 
-// Cloud Endpoints
-#define SENSOR_DATA_ENDPOINT "/receiveSensorData"
-#define HEARTBEAT_ENDPOINT "/deviceHeartbeat"
-#define ALERT_ENDPOINT "/processAlert"
-#define OTA_UPDATE_ENDPOINT "/checkOTAUpdate"
+// AWS IoT Endpoints
+#define DEVICE_STATUS_ENDPOINT "/device/status"
+#define SENSOR_DATA_ENDPOINT "/device/data"
+#define COMMAND_ENDPOINT "/device/command"
+#define OTA_UPDATE_ENDPOINT "/device/ota"
 
-// MQTT-over-HTTP Configuration
-#define MQTT_SIMULATION_PORT 443
-#define DEVICE_TOPIC_PREFIX "devices"
-#define MQTT_KEEPALIVE_INTERVAL 60000
-
-// Device Configuration
-#define DEVICE_ID "biotrack_device_001"
-#define FIRMWARE_VERSION "1.0.0"
 #define LED_BUILTIN 2  // ESP32 built-in LED pin
 
 // Sensor Pin Definitions - ESP32 WROOM-32 Optimized
