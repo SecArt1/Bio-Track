@@ -48,8 +48,6 @@ android/app/google-services.json
 **/GoogleService-Info.plist
 firebase-adminsdk-*.json
 **/firebase-adminsdk-*.json
-lib/firebase_options.dart
-**/firebase_options.dart
 
 # AWS and Cloud Credentials (SENSITIVE)
 aws-lambda/node_modules/
