@@ -75,9 +75,11 @@ if (USE_MOCK_FIREBASE) {
         credential: admin.credential.cert(serviceAccount),
         databaseURL: "https://bio-track-de846-default-rtdb.europe-west1.firebasedatabase.app"
       });
-    }
-  }
+    }  }
   db = admin.firestore();
+  
+  // Enable ignoreUndefinedProperties to handle undefined values gracefully
+  db.settings({ ignoreUndefinedProperties: true });
 }
 
 // Helper function to get proper timestamp based on Firebase mode
@@ -87,6 +89,30 @@ function getTimestamp(inputTimestamp = null) {
   } else {
     return inputTimestamp ? new Date(inputTimestamp) : admin.firestore.FieldValue.serverTimestamp();
   }
+}
+
+// Helper function to remove undefined values from objects
+function sanitizeData(obj) {
+  if (obj === null || obj === undefined) {
+    return null;
+  }
+  
+  if (Array.isArray(obj)) {
+    return obj.map(item => sanitizeData(item)).filter(item => item !== undefined);
+  }
+  
+  if (typeof obj === 'object') {
+    const sanitized = {};
+    Object.entries(obj).forEach(([key, value]) => {
+      const sanitizedValue = sanitizeData(value);
+      if (sanitizedValue !== undefined) {
+        sanitized[key] = sanitizedValue;
+      }
+    });
+    return sanitized;
+  }
+  
+  return obj;
 }
 
 /**
@@ -840,10 +866,13 @@ async function findDeviceOwner(deviceId) {
  */
 async function storeUnassignedSensorData(deviceId, data, timestamp) {
   try {
+    // Sanitize data to remove undefined values
+    const sanitizedData = sanitizeData(data);
+    
     const unassignedData = {
       deviceId: deviceId,
       timestamp: getTimestamp(timestamp),
-      sensorData: data,
+      sensorData: sanitizedData,
       status: 'unassigned',
       needsAssignment: true,
       createdAt: getTimestamp()

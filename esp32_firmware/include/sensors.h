@@ -6,7 +6,8 @@
 #include <SPI.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include <HX711.h>
+#include <HX711_ADC.h>
+#include <EEPROM.h>
 #include "MAX30105.h"
 #include "heartRate.h"
 #include "spo2_algorithm.h"
@@ -83,7 +84,7 @@ private:    // Sensor objects
     MAX30105 glucoseSensor;     // Second MAX30105 for glucose monitoring
     OneWire oneWire;
     DallasTemperature temperatureSensor;
-    HX711 loadCell;    BIAApplication biaApp;  // Add BIA Application
+    HX711_ADC loadCell;    BIAApplication biaApp;  // Add BIA Application
     BloodPressureMonitor bpMonitor;  // Add blood pressure monitor
     BodyCompositionAnalyzer bodyCompositionAnalyzer;  // Add body composition analyzer
     
@@ -113,6 +114,12 @@ private:    // Sensor objects
     bool ecgInitialized = false;
     bool glucoseInitialized = false;
     bool bpMonitorInitialized = false;  // Add BP monitor state
+    
+    // MAX30102 Mode Management (Single Sensor)
+    MAX30102_Mode currentMAX30102Mode = MODE_HEART_RATE_SPO2;
+    unsigned long modeStartTime = 0;
+    unsigned long lastModeCycle = 0;
+    bool autoModeCycling = ENABLE_AUTO_MODE_CYCLING;
     
     // ECG specific variables
     static const int ECG_FILTER_SIZE = 10;
@@ -193,7 +200,18 @@ public:
     // Utility methods
     String getSensorStatus();
     void printSensorReadings(const SensorReadings& readings);
-      // DS18B20 specific test and debug methods
+    
+    // MAX30102 Staged Testing Methods (Single Sensor)
+    bool setMAX30102Mode(MAX30102_Mode mode);
+    MAX30102_Mode getCurrentMAX30102Mode();
+    bool switchToHeartRateMode();
+    bool switchToGlucoseMode();
+    bool switchToBloodPressureMode();
+    bool switchToCalibrationMode();
+    void cycleMAX30102Modes();  // Auto-cycle through modes
+    String getMAX30102ModeString();
+    
+    // DS18B20 specific test and debug methods
     void testDS18B20();  // Standalone DS18B20 test function
     
     // AD8232 ECG specific test and monitoring methods
@@ -203,5 +221,6 @@ public:
 
 // Global utility function
 void displaySensorReadings(const SensorReadings& readings);
+String getModeString(MAX30102_Mode mode);  // Helper function for mode strings
 
 #endif // SENSORS_H

@@ -1,0 +1,33 @@
+{
+  "name": "biotrack-aws-lambda",
+  "version": "1.0.0",
+  "description": "AWS Lambda functions for BioTrack IoT-Firebase bridge",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "build": "npm run clean && npm run package",
+    "clean": "if exist dist rmdir /s /q dist",
+    "package": "powershell Compress-Archive -Path . -DestinationPath biotrack-lambda.zip -Force -CompressionLevel Optimal",
+    "package-unix": "zip -r biotrack-lambda.zip . -x '*.git*' 'node_modules/.cache/*' 'test/*' '*.md'",
+    "install-deps": "npm install"
+  },
+  "dependencies": {
+    "@aws-sdk/client-iot": "^3.450.0",
+    "@aws-sdk/client-iot-data-plane": "^3.450.0",
+    "aws-sdk": "^2.1490.0",
+    "firebase-admin": "^12.7.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "keywords": [
+    "aws-lambda",
+    "iot",
+    "firebase",
+    "biotrack",
+    "health-monitoring"
+  ],
+  "author": "BioTrack Team",
+  "license": "ISC"
+}

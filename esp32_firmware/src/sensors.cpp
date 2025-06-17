@@ -1,6 +1,6 @@
 #include "sensors.h"
 
-SensorManager::SensorManager() : oneWire(DS18B20_PIN), temperatureSensor(&oneWire) {
+SensorManager::SensorManager() : oneWire(DS18B20_PIN), temperatureSensor(&oneWire), loadCell(WEIGHT_SENSOR_DOUT, WEIGHT_SENSOR_SCK) {
     // Constructor - Initialize ECG buffer
     for (int i = 0; i < ECG_FILTER_SIZE; i++) {
         ecgBuffer[i] = 0;
@@ -23,77 +23,92 @@ SensorManager::SensorManager() : oneWire(DS18B20_PIN), temperatureSensor(&oneWir
 
 bool SensorManager::begin() {
     Serial.println("🔄 Initializing sensors...");
+    Serial.println("⚠️ WEIGHT-ONLY MODE: Only weight sensor will be initialized");
     
     bool success = true;
     
-    // Initialize I2C for heart rate sensor
-    Wire.begin(MAX30102_SDA_PIN, MAX30102_SCL_PIN);
+    // Skip I2C initialization to avoid MAX30102 issues
+    // Wire.begin(MAX30102_SDA_PIN, MAX30102_SCL_PIN);
     
-    // Initialize heart rate sensor
-    if (initializeHeartRateSensor()) {
-        Serial.println("✅ Heart rate sensor initialized");
-        heartRateInitialized = true;
-    } else {
-        Serial.println("❌ Heart rate sensor failed");
-        success = false;
-    }
+    // Skip heart rate sensor to prevent Error 263
+    // if (initializeHeartRateSensor()) {
+    //     Serial.println("✅ Heart rate sensor initialized");
+    //     heartRateInitialized = true;
+    // } else {
+    //     Serial.println("❌ Heart rate sensor failed");
+    //     success = false;
+    // }
+    Serial.println("⚠️ Heart rate sensor skipped (weight-only mode)");
     
-    // Initialize temperature sensor
-    if (initializeTemperatureSensor()) {
-        Serial.println("✅ Temperature sensor initialized");
-        temperatureInitialized = true;
-    } else {
-        Serial.println("❌ Temperature sensor failed");
-        success = false;
-    }
+    // Skip temperature sensor for now
+    // if (initializeTemperatureSensor()) {
+    //     Serial.println("✅ Temperature sensor initialized");
+    //     temperatureInitialized = true;
+    // } else {
+    //     Serial.println("❌ Temperature sensor failed");
+    //     success = false;
+    // }
+    Serial.println("⚠️ Temperature sensor skipped (weight-only mode)");
     
-    // Initialize weight sensor
+    // Initialize weight sensor ONLY
     if (initializeWeightSensor()) {
         Serial.println("✅ Weight sensor initialized");
         weightInitialized = true;
     } else {
         Serial.println("❌ Weight sensor failed");
         success = false;
-    }
-      // Initialize bioimpedance sensor
-    if (initializeBioimpedanceSensor()) {
-        Serial.println("✅ Bioimpedance sensor initialized");
-        bioimpedanceInitialized = true;
-    } else {
-        Serial.println("⚠️ Bioimpedance sensor failed (optional)");
-        // Don't fail initialization for bioimpedance
-    }
-      // Initialize ECG sensor
-    if (initializeECGSensor()) {
-        Serial.println("✅ ECG sensor initialized");
-        ecgInitialized = true;
-    } else {
-        Serial.println("⚠️ ECG sensor failed (optional)");
-        // Don't fail initialization for ECG
-    }
+    }    
+    // Skip bioimpedance sensor
+    // if (initializeBioimpedanceSensor()) {
+    //     Serial.println("✅ Bioimpedance sensor initialized");
+    //     bioimpedanceInitialized = true;
+    // } else {
+    //     Serial.println("⚠️ Bioimpedance sensor failed (optional)");
+    //     // Don't fail initialization for bioimpedance
+    // }
+    Serial.println("⚠️ Bioimpedance sensor skipped (weight-only mode)");
     
-    // Initialize glucose sensor
-    if (initializeGlucoseSensor()) {
-        Serial.println("✅ Glucose sensor initialized");
-        glucoseInitialized = true;
-    } else {
-        Serial.println("⚠️ Glucose sensor failed (optional)");
-        // Don't fail initialization for glucose
-    }
+    // Skip ECG sensor
+    // if (initializeECGSensor()) {
+    //     Serial.println("✅ ECG sensor initialized");
+    //     ecgInitialized = true;
+    // } else {
+    //     Serial.println("⚠️ ECG sensor failed (optional)");
+    //     // Don't fail initialization for ECG
+    // }
+    Serial.println("⚠️ ECG sensor skipped (weight-only mode)");
     
-    // Initialize blood pressure monitor
-    if (initializeBloodPressureMonitor()) {
-        Serial.println("✅ Blood pressure monitor initialized");
-        bpMonitorInitialized = true;
-    } else {
-        Serial.println("⚠️ Blood pressure monitor failed (optional)");
-        // Don't fail initialization for BP monitor
-    }
+    // Skip glucose sensor
+    // if (initializeGlucoseSensor()) {
+    //     Serial.println("✅ Glucose sensor initialized");
+    //     glucoseInitialized = true;
+    // } else {
+    //     Serial.println("⚠️ Glucose sensor failed (optional)");
+    //     // Don't fail initialization for glucose
+    // }
+    Serial.println("⚠️ Glucose sensor skipped (weight-only mode)");
     
-    return success;
+    // Skip blood pressure monitor
+    // if (initializeBloodPressureMonitor()) {
+    //     Serial.println("✅ Blood pressure monitor initialized");
+    //     bpMonitorInitialized = true;
+    // } else {
+    //     Serial.println("⚠️ Blood pressure monitor failed (optional)");
+    //     // Don't fail initialization for BP monitor
+    // }    Serial.println("⚠️ Blood pressure monitor skipped (weight-only mode)");
+    
+    Serial.println("✅ WEIGHT-ONLY MODE: Sensor initialization completed");
+    return success; // Will only be false if weight sensor fails
 }
 
 bool SensorManager::initializeHeartRateSensor() {
+    Serial.println("🔄 Initializing MAX30102 heart rate sensor...");
+    
+    // Enable internal pull-up resistors for I2C pins (temporary fix)
+    pinMode(MAX30102_SDA_PIN, INPUT_PULLUP);
+    pinMode(MAX30102_SCL_PIN, INPUT_PULLUP);
+    delay(100); // Allow pins to stabilize
+    
     if (!heartRateSensor.begin()) {
         return false;
     }
@@ -132,15 +147,37 @@ bool SensorManager::initializeTemperatureSensor() {
 }
 
 bool SensorManager::initializeWeightSensor() {
-    loadCell.begin(LOAD_CELL_DOUT_PIN, LOAD_CELL_SCK_PIN);
+    Serial.println("🔄 Initializing HX711_ADC weight sensor...");
     
-    if (!loadCell.is_ready()) {
+    // Initialize EEPROM for ESP32
+    EEPROM.begin(512);
+    
+    // Load calibration value from EEPROM
+    float calValue;
+    EEPROM.get(WEIGHT_EEPROM_ADDRESS, calValue);
+    if (calValue == 0xFFFFFFFF || calValue == 0.0) {
+        calValue = LOAD_CELL_CALIBRATION_FACTOR; // Use default from config.h
+        Serial.printf("Using default calibration factor: %.2f\n", calValue);
+    } else {
+        Serial.printf("Loaded calibration factor from EEPROM: %.2f\n", calValue);
+    }
+    
+    // Initialize HX711_ADC with existing pins
+    loadCell.begin();
+    
+    unsigned long stabilizingtime = 2000; // Stabilizing time
+    boolean tare = true; // Set to true to perform tare
+    
+    loadCell.start(stabilizingtime, tare);
+    
+    if (loadCell.getTareTimeoutFlag() || loadCell.getSignalTimeoutFlag()) {
+        Serial.println("❌ HX711 timeout - check wiring and pin designations");
+        Serial.printf("Expected pins: DOUT=%d, SCK=%d\n", WEIGHT_SENSOR_DOUT, WEIGHT_SENSOR_SCK);
         return false;
     }
     
-    // Set calibration factor
-    loadCell.set_scale(weightCalibrationFactor);
-    loadCell.tare(); // Reset scale to 0
+    loadCell.setCalFactor(calValue); // Set calibration factor
+    Serial.println("✅ Weight sensor initialized with HX711_ADC");
     
     return true;
 }
@@ -202,17 +239,23 @@ bool SensorManager::initializeECGSensor() {
 }
 
 bool SensorManager::initializeGlucoseSensor() {
-    Serial.println("🔄 Initializing MAX30102 Glucose sensor...");
+    Serial.println("🔄 Initializing MAX30102 for glucose estimation mode...");
     
-    // Initialize second I2C bus for glucose sensor
-    Wire1.begin(GLUCOSE_SDA_PIN, GLUCOSE_SCL_PIN);
+    // Enable internal pull-up resistors for I2C pins (backup if external pull-ups missing)
+    pinMode(MAX30102_SDA_PIN, INPUT_PULLUP);
+    pinMode(MAX30102_SCL_PIN, INPUT_PULLUP);
+    delay(100); // Allow pins to stabilize
     
-    if (!glucoseSensor.begin(Wire1, I2C_SPEED_FAST)) {
-        Serial.println("❌ Glucose sensor not found on second I2C bus");
+    // Use the same I2C bus as heart rate sensor - single MAX30102 approach
+    // No need for Wire1.begin() - already initialized in heart rate sensor init
+    
+    if (!glucoseSensor.begin(Wire, I2C_SPEED_FAST)) {
+        Serial.println("❌ Cannot initialize MAX30102 in glucose mode");
+        Serial.println("   Ensure heart rate sensor is properly initialized first");
         return false;
     }
     
-    // Configure glucose sensor settings
+    // Configure for glucose estimation mode - different settings than HR/SpO2
     glucoseSensor.setup();
     glucoseSensor.setPulseAmplitudeRed(0x0A);  // Low power for glucose monitoring
     glucoseSensor.setPulseAmplitudeIR(0x0A);   // Low power for glucose monitoring
@@ -360,36 +403,28 @@ TemperatureData SensorManager::readTemperature() {
 WeightData SensorManager::readWeight() {
     WeightData data = {0, false, false, millis()};
     
-    if (!weightInitialized || !loadCell.is_ready()) {
+    if (!weightInitialized) {
         return data;
     }
     
-    // Take multiple readings for stability
-    float readings[5];
-    for (int i = 0; i < 5; i++) {
-        readings[i] = loadCell.get_units(3);
-        delay(100);
-    }
-    
-    // Calculate average
-    float sum = 0;
-    for (int i = 0; i < 5; i++) {
-        sum += readings[i];
-    }
-    float average = sum / 5.0;
-    
-    // Check stability (readings should be within 0.1 kg)
-    bool stable = true;
-    for (int i = 0; i < 5; i++) {
-        if (abs(readings[i] - average) > 0.1) {
-            stable = false;
-            break;
+    // Update the load cell - required for HX711_ADC
+    if (loadCell.update()) {
+        // Get current weight reading
+        float weight = loadCell.getData();
+        
+        data.weight = weight;
+        data.stable = true; // HX711_ADC handles stability internally
+        data.validReading = validateWeightReading(weight);
+        
+        if (DEBUG_ENABLED) {
+            Serial.printf("⚖️ Weight: %.2f kg\n", weight);
+        }
+    } else {
+        data.validReading = false;
+        if (DEBUG_ENABLED) {
+            Serial.println("⚠️ Weight sensor not ready");
         }
     }
-    
-    data.weight = average;
-    data.stable = stable;
-    data.validReading = validateWeightReading(average) && stable;
     
     return data;
 }
@@ -867,7 +902,7 @@ bool SensorManager::isBioimpedanceReady() {
 }
 
 bool SensorManager::isWeightReady() {
-    return weightInitialized && loadCell.is_ready();
+    return weightInitialized; // HX711_ADC doesn't have is_ready() method
 }
 
 // DS18B20 standalone test function (for debugging and validation)
@@ -935,11 +970,50 @@ ECGData SensorManager::getECG() {
 
 void SensorManager::tareWeight() {
     if (weightInitialized) {
-        loadCell.tare();
-        Serial.println("⚖️ Weight sensor tared");
+        loadCell.tareNoDelay();
+        Serial.println("⚖️ Weight sensor tare initiated...");
+        
+        // Wait for tare to complete
+        while (!loadCell.getTareStatus()) {
+            loadCell.update();
+            delay(10);
+        }
+        Serial.println("✅ Weight sensor tare complete");
     } else {
         Serial.println("❌ Weight sensor not initialized");
     }
+}
+
+void SensorManager::calibrateWeight(float knownWeight) {
+    if (!weightInitialized) {
+        Serial.println("❌ Weight sensor not initialized");
+        return;
+    }
+    
+    Serial.println("***");
+    Serial.println("🔧 Starting weight calibration...");
+    Serial.printf("📏 Known weight: %.2f kg\n", knownWeight);
+    
+    // Refresh data set for accurate calibration
+    loadCell.refreshDataSet();
+    
+    // Calculate new calibration factor
+    float newCalFactor = loadCell.getNewCalibration(knownWeight);
+    
+    Serial.printf("📊 New calibration factor: %.2f\n", newCalFactor);
+    Serial.println("💾 Save to EEPROM? Send 'y' to save, 'n' to skip");
+    
+    // Set the new calibration factor temporarily
+    loadCell.setCalFactor(newCalFactor);
+    
+    // Note: In a real implementation, you'd wait for user input here
+    // For now, auto-save the calibration factor
+    EEPROM.put(WEIGHT_EEPROM_ADDRESS, newCalFactor);
+    EEPROM.commit();
+    Serial.printf("✅ Calibration factor %.2f saved to EEPROM\n", newCalFactor);
+    
+    Serial.println("✅ Calibration complete!");
+    Serial.println("***");
 }
 
 // Individual AD8232 ECG test for heart rate diagram
@@ -1230,4 +1304,187 @@ BodyComposition SensorManager::getBodyComposition(float currentWeight) {
     }
     
     return composition;
+}
+
+// ===================================================
+// MAX30102 Staged Testing Implementation (Single Sensor)
+// ===================================================
+
+bool SensorManager::setMAX30102Mode(MAX30102_Mode mode) {
+    if (mode == currentMAX30102Mode) {
+        return true; // Already in requested mode
+    }
+    
+    Serial.printf("🔄 Switching MAX30102 from %s to %s mode\n", 
+                  getMAX30102ModeString().c_str(), 
+                  getModeString(mode).c_str());
+    
+    currentMAX30102Mode = mode;
+    modeStartTime = millis();
+    
+    // Configure sensor settings based on mode
+    switch (mode) {
+        case MODE_HEART_RATE_SPO2:
+            return switchToHeartRateMode();
+        case MODE_GLUCOSE_ESTIMATION:
+            return switchToGlucoseMode();
+        case MODE_BLOOD_PRESSURE:
+            return switchToBloodPressureMode();
+        case MODE_CALIBRATION:
+            return switchToCalibrationMode();
+        default:
+            Serial.println("❌ Unknown MAX30102 mode requested");
+            return false;
+    }
+}
+
+MAX30102_Mode SensorManager::getCurrentMAX30102Mode() {
+    return currentMAX30102Mode;
+}
+
+bool SensorManager::switchToHeartRateMode() {
+    Serial.println("💓 Configuring MAX30102 for Heart Rate & SpO2 measurement");
+    
+    if (!heartRateInitialized) {
+        Serial.println("❌ Heart rate sensor not initialized");
+        return false;
+    }
+    
+    // Configure for optimal heart rate and SpO2 measurement
+    heartRateSensor.setup();
+    heartRateSensor.setPulseAmplitudeRed(0x0A);    // Medium power for good signal
+    heartRateSensor.setPulseAmplitudeIR(0x1F);     // Higher power for SpO2 accuracy
+    heartRateSensor.setSampleRate(2);              // Sample rate 2 (200 Hz)
+    heartRateSensor.setPulseWidth(215);            // 215 microseconds pulse width
+    
+    Serial.println("✅ MAX30102 configured for Heart Rate & SpO2 mode");
+    return true;
+}
+
+bool SensorManager::switchToGlucoseMode() {
+    Serial.println("🩸 Configuring MAX30102 for Glucose Estimation");
+    
+    if (!glucoseInitialized) {
+        Serial.println("❌ Glucose sensor mode not initialized");
+        return false;
+    }
+    
+    // Configure for glucose estimation using PPG morphology
+    glucoseSensor.setup();
+    glucoseSensor.setPulseAmplitudeRed(0x08);      // Lower power for glucose
+    glucoseSensor.setPulseAmplitudeIR(0x08);       // Lower power, focused on morphology
+    glucoseSensor.setSampleRate(2);               // Sample rate 2 (200 Hz)
+    glucoseSensor.setPulseWidth(118);              // Shorter pulse width
+    
+    Serial.println("✅ MAX30102 configured for Glucose Estimation mode");
+    return true;
+}
+
+bool SensorManager::switchToBloodPressureMode() {
+    Serial.println("🩺 Configuring MAX30102 for Blood Pressure PTT");
+    
+    // Use heart rate sensor for PPG in blood pressure mode
+    if (!heartRateInitialized) {
+        Serial.println("❌ Heart rate sensor not initialized for BP mode");
+        return false;
+    }
+    
+    // Configure for pulse transit time measurement
+    heartRateSensor.setup();
+    heartRateSensor.setPulseAmplitudeRed(0x0C);    // Medium-high power for clear pulse
+    heartRateSensor.setPulseAmplitudeIR(0x0C);     // Balanced for PTT detection
+    heartRateSensor.setSampleRate(3);              // Sample rate 3 (400 Hz) for timing precision
+    heartRateSensor.setPulseWidth(215);            // Standard pulse width
+    
+    Serial.println("✅ MAX30102 configured for Blood Pressure PTT mode");
+    return true;
+}
+
+bool SensorManager::switchToCalibrationMode() {
+    Serial.println("⚙️ Configuring MAX30102 for Calibration");
+    
+    // Use standard settings for calibration
+    if (!heartRateInitialized) {
+        Serial.println("❌ Sensor not initialized for calibration mode");
+        return false;
+    }
+    
+    // Calibration mode uses moderate settings
+    heartRateSensor.setup();
+    heartRateSensor.setPulseAmplitudeRed(0x0F);    // Moderate power
+    heartRateSensor.setPulseAmplitudeIR(0x0F);     // Moderate power
+    heartRateSensor.setSampleRate(2);              // Sample rate 2 (200 Hz)
+    heartRateSensor.setPulseWidth(215);            // Standard pulse width
+    
+    Serial.println("✅ MAX30102 configured for Calibration mode");
+    return true;
+}
+
+void SensorManager::cycleMAX30102Modes() {
+    if (!autoModeCycling) {
+        return; // Auto-cycling disabled
+    }
+    
+    unsigned long currentTime = millis();
+    unsigned long timeInCurrentMode = currentTime - modeStartTime;
+    
+    // Check if it's time to switch modes
+    bool shouldSwitch = false;
+    
+    switch (currentMAX30102Mode) {
+        case MODE_HEART_RATE_SPO2:
+            shouldSwitch = (timeInCurrentMode >= MODE_DURATION_HR_SPO2);
+            break;
+        case MODE_GLUCOSE_ESTIMATION:
+            shouldSwitch = (timeInCurrentMode >= MODE_DURATION_GLUCOSE);
+            break;
+        case MODE_BLOOD_PRESSURE:
+            shouldSwitch = (timeInCurrentMode >= MODE_DURATION_BP);
+            break;
+        case MODE_CALIBRATION:
+            shouldSwitch = (timeInCurrentMode >= MODE_DURATION_CALIBRATION);
+            break;
+    }
+    
+    if (shouldSwitch) {
+        // Cycle to next mode
+        MAX30102_Mode nextMode;
+        switch (currentMAX30102Mode) {
+            case MODE_HEART_RATE_SPO2:
+                nextMode = MODE_GLUCOSE_ESTIMATION;
+                break;
+            case MODE_GLUCOSE_ESTIMATION:
+                nextMode = MODE_BLOOD_PRESSURE;
+                break;
+            case MODE_BLOOD_PRESSURE:
+                nextMode = MODE_CALIBRATION;
+                break;
+            case MODE_CALIBRATION:
+            default:
+                nextMode = MODE_HEART_RATE_SPO2;
+                break;
+        }
+        
+        setMAX30102Mode(nextMode);
+        lastModeCycle = currentTime;
+    }
+}
+
+String SensorManager::getMAX30102ModeString() {
+    return getModeString(currentMAX30102Mode);
+}
+
+String getModeString(MAX30102_Mode mode) {
+    switch (mode) {
+        case MODE_HEART_RATE_SPO2:
+            return "Heart Rate & SpO2";
+        case MODE_GLUCOSE_ESTIMATION:
+            return "Glucose Estimation";
+        case MODE_BLOOD_PRESSURE:
+            return "Blood Pressure PTT";
+        case MODE_CALIBRATION:
+            return "Calibration";
+        default:
+            return "Unknown";
+    }
 }

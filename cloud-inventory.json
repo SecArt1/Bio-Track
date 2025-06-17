@@ -1,0 +1,43 @@
+{
+    "lastCompletedStep":  "comprehensive-iot-test-with-robust-powershell-escaping",
+    "timestamp":  "2025-06-16T01:54:40Z",
+    "awsRegion":  "eu-central-1",
+    "awsProfile":  "default",
+    "projectId":  "bio-track-de846",
+    "resources":  {
+                      "awsIotEndpoint":  "azvqnnby4qrmz-ats.iot.eu-central-1.amazonaws.com",
+                      "lambdaFunction":  "biotrack-iot-bridge",
+                      "s3Bucket":  "biotrack-lambda-deployment-20241216-195509",
+                      "deviceId":  "biotrack-device-001",
+                      "thingName":  "biotrack-device-001"
+                  },
+    "testingProgress":  {
+                            "currentStep":  "iot-message-format-test-completed",
+                            "startTime":  "2025-06-16T12:30:00Z",
+                            "lambdaTestResult":  "successful-invocation-with-base64-payload",
+                            "lastSuccessfulMethod":  "base64-payload-encoding",
+                            "lambdaResponse":  "400-invalid-request-type-expected",
+                            "encodingIssueFixed":  "true",
+                            "testMethod":  "base64-payload-robust-escaping",
+                            "testStartTime":  "2025-06-16T01:54:23Z",
+                            "deviceId":  "biotrack-device-001",
+                            "messagesPlanned":  2,
+                            "lastSuccessTime":  "2025-06-16T01:45:35Z",
+                            "lastSuccessfulTest":  "iot_msg_638856351329689197_2",
+                            "messagesSent":  2,
+                            "failureCount":  0,
+                            "successCount":  0,
+                            "escapingMethod":  "base64-payload-encoding",
+                            "duration":  "00:00:17.2392392",
+                            "endTime":  "2025-06-16T01:54:40Z",
+                            "successRate":  0,
+                            "testType":  "iot-formatted-messages",
+                            "firestoreCollections":  [
+                                                         "sensor_data",
+                                                         "test_sessions",
+                                                         "user_profiles",
+                                                         "device_assignments"
+                                                     ]
+                        },
+    "lastError":  null
+}

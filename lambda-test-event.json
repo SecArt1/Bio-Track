@@ -1,0 +1,14 @@
+﻿{
+  "topic": "biotrack/device/biotrack-device-001/telemetry",
+  "deviceId": "biotrack-device-001",
+  "timestamp": "2025-06-16T12:00:00.000Z",
+  "messageId": "test_msg_001",
+  "vitals": {
+    "heartRate": 72,
+    "temperature": 36.8,
+    "spo2": 98
+  },
+  "weight": 75.2,
+  "batteryLevel": 85,
+  "userId": "user_placeholder"
+}

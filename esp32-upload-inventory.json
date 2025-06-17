@@ -1,0 +1,10 @@
+{
+    "LastCompletedStep":  "upload",
+    "ESP32Upload":  {
+                        "UploadStatus":  "success",
+                        "MAC":  "d4:8a:fc:60:9b:74",
+                        "TargetPort":  "COM4",
+                        "ChipInfo":  "ESP32-D0WD-V3 (revision v3.1)",
+                        "UploadTime":  "2025-06-17T01:25:03Z"
+                    }
+}

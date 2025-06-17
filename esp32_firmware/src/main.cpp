@@ -81,7 +81,7 @@ void showBPDetailedDiagnostics();
 void showBPTestStatus();
 void monitorSystemHealth();
 void handleWatchdogTimeout();
-void validatePinConfiguration();  // Add pin validation function
+// validatePinConfiguration() is defined in config.h as inline function
 void runBodyCompositionTest(); // Add function for body composition test
 
 // Global state
@@ -188,6 +188,21 @@ void loop() {
     
     // Handle serial commands
     handleSerialCommands();
+      // Read and display weight sensor data every 2 seconds
+    static unsigned long lastWeightReading = 0;
+    if (millis() - lastWeightReading > 2000) {
+        WeightData weightData = sensors.getWeight(); // Use public getWeight() method
+        
+        Serial.println("========== WEIGHT SENSOR READING ==========");
+        Serial.printf("Weight: %.2f kg\n", weightData.weight);
+        Serial.printf("Stable: %s\n", weightData.stable ? "Yes" : "No");
+        Serial.printf("Valid: %s\n", weightData.validReading ? "Yes" : "No");
+        Serial.printf("Timestamp: %lu ms\n", weightData.timestamp);
+        Serial.println("==========================================");
+        Serial.println();
+        
+        lastWeightReading = millis();
+    }
     
     // Send heartbeat every 30 seconds
     if (millis() - lastHeartbeatTime > 30000) {
@@ -959,9 +974,10 @@ void runGlucoseTest() {
     
     if (!sensors.isGlucoseReady()) {
         Serial.println("❌ Glucose sensor not ready!");
-        Serial.println("   Check second MAX30102 connections:");
-        Serial.printf("   SDA: GPIO %d, SCL: GPIO %d\n", GLUCOSE_SDA_PIN, GLUCOSE_SCL_PIN);
-        Serial.println("   This sensor uses PPG for non-invasive glucose estimation");
+        Serial.println("   Check MAX30102 connections:");
+        Serial.printf("   SDA: GPIO %d, SCL: GPIO %d\n", MAX30102_SDA_PIN, MAX30102_SCL_PIN);
+        Serial.println("   Single MAX30102 sensor switched to glucose estimation mode");
+        Serial.println("   This sensor uses PPG morphology for non-invasive glucose estimation");
         Serial.println("   Press any key to return to menu...");
         while (!Serial.available()) delay(100);
         Serial.read();
@@ -1780,8 +1796,29 @@ void handleSerialCommands() {
         } else if (command == "temp_cal") {
             float currentOffset = sensors.getTemperatureOffset();
             Serial.printf("🌡️ Current temperature offset: %.2f°C\n", currentOffset);
-            Serial.println("Usage: temp_cal <offset_value>");
-            Serial.println("Example: temp_cal 5.0");
+            Serial.println("Usage: temp_cal <offset_value>");            Serial.println("Example: temp_cal 5.0");
+              } else if (command == "tare") {
+            Serial.println("⚖️ Taring weight sensor (removing platform + device weight)...");
+            sensors.tareWeight();
+            Serial.println("✅ Weight sensor tared - place subject on platform for measurement");
+            
+        } else if (command.startsWith("cal ")) {
+            // Parse calibration weight
+            String weightStr = command.substring(4);
+            float knownWeight = weightStr.toFloat();
+            if (knownWeight > 0) {
+                Serial.printf("🔧 Calibrating with known weight: %.2f kg\n", knownWeight);
+                Serial.println("📋 Make sure the known weight is on the scale, then calibrating...");
+                sensors.calibrateWeight(knownWeight);
+            } else {
+                Serial.println("❌ Invalid weight. Usage: cal <weight_in_kg>");
+                Serial.println("Example: cal 77.5");
+            }
+            
+        } else if (command == "t") {
+            // Quick tare command like in your example
+            Serial.println("⚖️ Quick tare...");
+            sensors.tareWeight();
             
         } else if (command == "help") {
             Serial.println("\n=== AVAILABLE COMMANDS ===");
@@ -1790,87 +1827,23 @@ void handleSerialCommands() {
             Serial.println("network         - Show network diagnostics");
             Serial.println("sensors         - Read all sensors");
             Serial.println("test_alert      - Send test alert");
-            Serial.println("test_heartbeat  - Send test heartbeat");
-            Serial.println("temp_test       - Test DS18B20 temperature sensor");
+            Serial.println("test_heartbeat  - Send test heartbeat");            Serial.println("temp_test       - Test DS18B20 temperature sensor");
             Serial.println("temp_cal [val]  - Set/show temperature calibration offset");
+            Serial.println("tare            - Tare/zero the weight sensor");
+            Serial.println("t               - Quick tare command");
+            Serial.println("cal <weight>    - Calibrate weight sensor with known weight (kg)");
             Serial.println("restart         - Restart the device");
             Serial.println("help            - Show this help");
             Serial.println("=============================");
-            
-        } else if (command.length() > 0) {
+              } else if (command.length() > 0) {
             Serial.println("❌ Unknown command. Type 'help' for available commands.");
         }
     }
 }
 
-void validatePinConfiguration() {
-    Serial.println("🔧 Validating ESP32 WROOM-32 pin configuration...");
-    
-    // Check for pin conflicts and WROOM-32 compatibility
-    bool hasConflicts = false;
-    bool hasInvalidPins = false;
-    
-    // Validate all sensor pins for WROOM-32 compatibility
-    if (!isValidWROOMPin(DS18B20_PIN)) {
-        Serial.printf("❌ INVALID PIN: DS18B20 (GPIO %d) not suitable for WROOM-32\n", DS18B20_PIN);
-        hasInvalidPins = true;
-    }
-    
-    if (!isValidWROOMPin(MAX30102_SDA_PIN) || !isValidWROOMPin(MAX30102_SCL_PIN)) {
-        Serial.printf("❌ INVALID PIN: MAX30102 I2C pins not suitable for WROOM-32\n");
-        hasInvalidPins = true;
-    }
-    
-    if (!isValidWROOMPin(GLUCOSE_SDA_PIN) || !isValidWROOMPin(GLUCOSE_SCL_PIN)) {
-        Serial.printf("❌ INVALID PIN: Glucose I2C pins not suitable for WROOM-32\n");
-        hasInvalidPins = true;
-    }
-    
-    if (!isValidWROOMPin(LOAD_CELL_DOUT_PIN) || !isValidWROOMPin(LOAD_CELL_SCK_PIN)) {
-        Serial.printf("❌ INVALID PIN: Load cell pins not suitable for WROOM-32\n");
-        hasInvalidPins = true;
-    }
-    
-    // Check for pin conflicts
-    if (GLUCOSE_SDA_PIN == LOAD_CELL_DOUT_PIN || GLUCOSE_SCL_PIN == LOAD_CELL_SCK_PIN) {
-        Serial.printf("⚠️  PIN CONFLICT: Glucose I2C conflicts with Load Cell pins\n");
-        hasConflicts = true;
-    }
-    
-    // Check boot-sensitive pins
-    if (BP_PUMP_PIN == 12) {
-        Serial.printf("⚠️  BOOT WARNING: GPIO12 (BP_PUMP_PIN) affects flash voltage on boot\n");
-    }
-    
-    // Display WROOM-32 optimized pin assignments
-    Serial.println("📍 ESP32 WROOM-32 Pin Assignments:");
-    Serial.printf("  DS18B20 Temperature: GPIO %d\n", DS18B20_PIN);
-    Serial.printf("  MAX30102 HR I2C: SDA=%d, SCL=%d\n", MAX30102_SDA_PIN, MAX30102_SCL_PIN);
-    Serial.printf("  Glucose I2C: SDA=%d, SCL=%d\n", GLUCOSE_SDA_PIN, GLUCOSE_SCL_PIN);
-    Serial.printf("  Load Cell: DOUT=%d, SCK=%d\n", LOAD_CELL_DOUT_PIN, LOAD_CELL_SCK_PIN);
-    Serial.printf("  AD5941 SPI: CS=%d, MOSI=%d, MISO=%d, SCK=%d\n", 
-                  AD5941_CS_PIN, AD5941_MOSI_PIN, AD5941_MISO_PIN, AD5941_SCK_PIN);
-    Serial.printf("  ECG: DATA=%d, LO+=%d, LO-=%d\n", ECG_PIN, LO_PLUS_PIN, LO_MINUS_PIN);
-    Serial.printf("  Blood Pressure: EN=%d, PUMP=%d\n", BP_ENABLE_PIN, BP_PUMP_PIN);
-    
-    // Memory information for WROOM-32
-    Serial.println("💾 WROOM-32 Memory Info:");
-    Serial.printf("  Total heap: %d bytes\n", ESP.getHeapSize());
-    Serial.printf("  Free heap: %d bytes\n", ESP.getFreeHeap());
-    Serial.printf("  PSRAM: %s\n", psramFound() ? "Found" : "Not available (WROOM-32)");
-    
-    if (!hasConflicts && !hasInvalidPins) {
-        Serial.println("✅ Pin configuration validated - WROOM-32 compatible, no conflicts detected");
-    } else {
-        if (hasInvalidPins) {
-            Serial.println("❌ Invalid pins detected for WROOM-32! Please review pin assignments.");
-        }
-        if (hasConflicts) {
-            Serial.println("❌ Pin conflicts detected! Please review hardware connections.");
-        }
-    }
- }
- 
+// validatePinConfiguration() function is defined in config.h as inline function
+// No duplicate implementation needed here
+
 void runBodyCompositionTest() {
     Serial.println("\n🧬 BODY COMPOSITION ANALYSIS TEST");
     Serial.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");

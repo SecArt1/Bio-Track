@@ -1,0 +1,37 @@
+{
+  "deviceId": "biotrack-device-001",
+  "timestamp": "2025-06-16T12:30:00.000Z",
+  "messageId": "test_msg_escaped_001",
+  "topic": "biotrack/device/biotrack-device-001/telemetry",
+  "vitals": {
+    "heartRate": 75,
+    "temperature": 36.9,
+    "spo2": 97,
+    "bloodPressure": {
+      "systolic": 125,
+      "diastolic": 82
+    }
+  },
+  "weight": 72.5,
+  "bioimpedance": {
+    "resistance": 450.0,
+    "reactance": 65.0,
+    "impedance": 454.7,
+    "frequency": 50000
+  },
+  "bodyComposition": {
+    "bodyFat": 16.8,
+    "muscleMass": 40.2,
+    "bodyWater": 58.5,
+    "boneMass": 3.1,
+    "bmr": 1720
+  },
+  "location": {
+    "latitude": 30.712800,
+    "longitude": 31.006000
+  },
+  "batteryLevel": 88,
+  "signalStrength": -42,
+  "firmwareVersion": "1.0.2",
+  "userId": "user_placeholder"
+}
